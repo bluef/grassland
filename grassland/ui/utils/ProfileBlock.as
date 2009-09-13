@@ -15,8 +15,9 @@
 		private var _state:StateIndicator;
 		private var _statusT:TextField;
 		private var _avatar:Bitmap;
-		public function ProfileBlock(){
-			_label = new LabelText('',300,true,0xFFFFFF,false,14);
+		
+		public function ProfileBlock() {
+			_label = new LabelText('', 300, true, 0xFFFFFF, false, 14);
 			_label.x = 68;
 			_label.y = 22;
 			_label.text = "";
@@ -25,9 +26,8 @@
 			_statusT = new TextField();
 			var t2:TextFormat = new TextFormat();
 			t2.color = 0xFFFFFF;
-			t2.font = "微软雅黑";
-			t2.size = 12;
-			t2.italic = true;
+			t2.font = "Arial";
+			t2.size = 11;
 			_statusT.defaultTextFormat = t2;
 			_statusT.width = 300;
 			_statusT.x = 68;
@@ -45,31 +45,31 @@
 			addChild(_avatar);
 		}
 		
-		public function set nick(s:String):void{
+		public function set nick(s:String):void {
 			_label.text = s;
 		}
 		
-		public function set status(s:String):void{
-			if(s != null){
+		public function set status(s:String):void {
+			if (s != null) {
 				_statusT.text = s;
-			}else{
+			} else {
 				_statusT.text = '';
 			}
 			//var e:ProfileEvent = new ProfileEvent(_show,_status);
 			//dispatchEvent(e);
 		}
 		
-		public function set show(s:String):void{
+		public function set show(s:String):void {
 			_show = s;
 			_state.mode = s;
 		}
 		
-		public function set avatar(b:BitmapData):void{
+		public function set avatar(b:BitmapData):void {
 			_avatar.bitmapData = b;
 		}
 		
-		public function disposeAvatar():void{
-			_avatar.bitmapData.dispose();
+		public function disposeAvatar():void {
+			BitmapData(_avatar.bitmapData).dispose();
 		}
 	}
 }

@@ -27,16 +27,16 @@
 			_label = n;
 			_msk = new Sprite();
 			_msk.mouseEnabled = false;
-			with(_msk.graphics) {
+			with (_msk.graphics) {
 				lineStyle(0);
 				beginFill(0xff0000);
-				drawRect(0,0,260,CTRL_H);
+				drawRect(0, 0, 260, CTRL_H);
 				endFill();
 			}
 			addChild(_msk);
 			_foldCtrl = new FoldCtrl(_label);
 			this.mask = _msk;
-			_foldCtrl.addEventListener(MouseEvent.CLICK,onClick);
+			_foldCtrl.addEventListener(MouseEvent.CLICK, onClick);
 			addChild(_foldCtrl);
 		}
 		
@@ -58,15 +58,17 @@
 		}*/
 		
 		public function removeItem():void {
-			removeChild(ContactListItem(_itemArr.pop()));
+			var item:ContactListItem = _itemArr.pop();
+			ContactListItem(item).removeEventListener(MouseEvent.CLICK, onItemClick);
+			removeChild(ContactListItem(item));
 		}
 		
 		public function onClick(e:MouseEvent):void {
-			if(_folded) {
-				dispatchEvent(new ContactGroupEvent(ContactGroupEvent.UNFOLD,_name));
+			if (_folded) {
+				dispatchEvent(new ContactGroupEvent(ContactGroupEvent.UNFOLD, _name));
 				_folded = false;
-			}else {
-				dispatchEvent(new ContactGroupEvent(ContactGroupEvent.FOLD,_name));
+			} else {
+				dispatchEvent(new ContactGroupEvent(ContactGroupEvent.FOLD, _name));
 				_folded = true;
 			}
 		}
@@ -84,7 +86,7 @@
 		}
 		
 		public function unfold():void {
-			_msk.height = _itemArr.length*ContactListItem.BTNH+CTRL_H;
+			_msk.height = _itemArr.length * ContactListItem.BTNH + CTRL_H;
 			_folded = false;
 			_foldCtrl.fold = false;
 		}
@@ -113,5 +115,9 @@
 		public function getItemAt(s:int):ContactListItem {
 			return ContactListItem(_itemArr[s]);
 		}
+		
+		public function get visualHeight():Number {
+			return _msk.height;
+		};
 	}
 }

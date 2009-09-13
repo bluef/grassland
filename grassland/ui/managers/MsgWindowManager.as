@@ -33,11 +33,12 @@
 			var msg:String = packet.body;
 			msg = msg.replace(/\</g, "&lt;");
 			msg = msg.replace(/\>/g, "&gt;");
+			//msg = msg.replace(/\n/g, "<br />");
 			var r:RosterItem = Env.getInstance().getRosterItemByJID(packet.from);
 			if(r.nick == null || r.nick == ''){
-				tmpWin.addText("  <b>" + packet.from.node + "</b><br />    " + msg);
+				tmpWin.addText("  <b>" + packet.from.node + " :</b><br />    " + msg);
 			}else{
-				tmpWin.addText("  <b>" + r.nick + "</b><br />    " + msg);
+				tmpWin.addText("  <b>" + r.nick + " :</b><br />    " + msg);
 			}
 			tmpWin.guestTyping("stopped");
 		}
@@ -125,7 +126,7 @@
 			msg = msg.replace(/\</g, "&lt;");
 			msg = msg.replace(/\>/g, "&gt;");
 			
-			MessageWindow(e.target).addText("  <b>Me</b><br />    " + msg);
+			MessageWindow(e.target).addText("  <b>Me :</b><br />    " + msg);
 			MessageWindow(e.target).guestTyping("stopped");
 		}
 		

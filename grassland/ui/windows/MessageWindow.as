@@ -1,6 +1,7 @@
 ﻿package grassland.ui.windows {
 	import flash.net.URLRequest;
 	import flash.display.Loader;
+	import flash.display.LoaderInfo;
 	import flash.display.Sprite;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
@@ -12,7 +13,11 @@
 	import flash.ui.Keyboard;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
+	import flash.geom.Rectangle;
+	
 	import fl.events.ScrollEvent;
+	
+	import grassland.core.utils.JID;
 	
 	import grassland.ui.managers.MsgWindowConfig;
 	import grassland.ui.base.BasicWindow;
@@ -42,7 +47,7 @@
 		public function MessageWindow(config:MsgWindowConfig) {
 			_config = config.clone();			
 			super(350, 460, true, 350, 460);
-			title = _config.guest.uid.valueOf();
+			title = JID(_config.guest.uid).valueOf();
 			init();
 		}
 		
@@ -56,13 +61,16 @@
 			stage.addChild(_guestProfile);
 			
 			txtFormat = new DefaultTextFormat();
+			txtFormat.leftMargin = 5;
+			txtFormat.rightMargin = 10;
 			
 			_disArea = new TextField();
 			_disArea.multiline = true;
 			_disArea.wordWrap = true;
 			_disArea.defaultTextFormat = txtFormat;
 			_disArea.border = true;
-			_disArea.width = width;
+			_disArea.width = width - 17;
+			
 			_disArea.height = 305;
 			_disArea.x = 0;
 			_disArea.y = 0;
@@ -71,12 +79,12 @@
 			
 			_inputArea = new InputField(290, 20);
 			_inputArea.wordWrap = true;
+			_inputArea.defaultTextFormat = txtFormat;
 			_inputArea.height = 50;
 			_inputArea.width = width - 2;
 			_inputArea.x = 0;
 			_inputArea.y = height - 155;
 			_inputArea.addEventListener(KeyboardEvent.KEY_DOWN, onEnter);
-			//_inputArea.addEventListener(TextEvent.TEXT_INPUT, onTyping);
 			_inputArea.addEventListener(Event.CHANGE, onTyping);
 
 			_panel.addChild(_inputArea);
@@ -115,7 +123,7 @@
 		}
 		
 		private function onEnter(e:KeyboardEvent):void {
-			if(e.keyCode == Keyboard.ENTER) {
+			if (e.keyCode == Keyboard.ENTER) {
 				var ee:SendMsgEvent = new SendMsgEvent(_config, _inputArea.text);
 				dispatchEvent(ee);
 				_inputArea.text = "";
@@ -123,9 +131,9 @@
 		}
 		
 		public function guestTyping(s:String):void {
-			switch (s)  {
+			switch (s) {
 				case "typing":
-					if(!stage.contains(_isTyping)) {
+					if (!stage.contains(_isTyping)) {
 						_isTyping.x = 140;
 						_isTyping.y = 40;
 						stage.addChild(_isTyping);
@@ -133,8 +141,9 @@
 					_isTyping.visible = true;
 					_isTyping.play();
 					break;
+					
 				case "paused":
-					if(!stage.contains(_isTyping)) {
+					if (!stage.contains(_isTyping)) {
 						_isTyping.x = 140;
 						_isTyping.y = 40;
 						stage.addChild(_isTyping);
@@ -142,8 +151,9 @@
 					_isTyping.visible = true;
 					_isTyping.stop();
 					break;
+					
 				case "stopped":
-					if(stage.contains(_isTyping)) {
+					if (stage.contains(_isTyping)) {
 						_isTyping.visible = false;
 					}
 					break;
@@ -167,9 +177,11 @@
 		
 		public function addText(pmsg:String):void {
 			_disArea.htmlText += pmsg + "<br /><br />";
+			//_scrollBar.maxScrollPosition = (_disArea.maxScrollV - _scrollBar.height) / 50;
+			
 			_disArea.scrollV = _disArea.maxScrollV;
-			_scrollBar.maxScrollPosition = _disArea.maxScrollV;
-			_scrollBar.scrollPosition = _disArea.scrollV;
+			_scrollBar.maxScrollPosition = _disArea.maxScrollV / 5;
+			_scrollBar.scrollPosition = _scrollBar.maxScrollPosition;
 		}
 		
 		public function get config():MsgWindowConfig {
@@ -178,7 +190,7 @@
 		
 		public function updateProfile(n:String, sshow:String, sstatus:String, a:BitmapData):void {
 						
-			loadAvatar(_config.guest.uid.node);
+			loadAvatar(JID(_config.guest.uid).node);
 			_guestProfile.nick = n;
 			_guestProfile.show = sshow;
 			_guestProfile.status = sstatus;
@@ -202,7 +214,8 @@
 		*/
 		
 		private function onScroll(e:ScrollEvent):void {
-			_disArea.scrollV = e.target.scrollPosition;
+			//_disArea.scrollV = e.target.scrollPosition;
+			_disArea.scrollV = ScrollBar(e.target).scrollPosition * 5;
 		}
 		
 		public function dispose():void {
@@ -211,15 +224,16 @@
 		}
 		
 		private function loadAvatar(u:String):void {
-			var r:URLRequest = new URLRequest("http://www2.dormforce.net/cache/imgc.php?a=get&m=uid&u="+u);
+			var r:URLRequest = new URLRequest("http://www2.dormforce.net/cache/imgc.php?a=get&m=uid&u=" + u);
 			var l:Loader = new Loader();
-			l.contentLoaderInfo.addEventListener(Event.COMPLETE, onAvatarLoaded);
+			LoaderInfo(l.contentLoaderInfo).addEventListener(Event.COMPLETE, onAvatarLoaded);
 			l.load(r);
 		}
 		
 		private function onAvatarLoaded(e:Event):void {
 			var u:String = e.target.url.substring(55);
 			_guestProfile.avatar = Bitmap(e.target.content).bitmapData;
+			LoaderInfo(e.target).removeEventListener(Event.COMPLETE, onAvatarLoaded);
 			//dispatchEvent(new Event(ROSTER_UPDATED, true));
 			//trace("b=", getRosterItemByNode(u).avatar.getPixel(10, 10));
 			//getRosterItemByNode(u).avatar.addChild(e.target.content);
@@ -229,17 +243,18 @@
 			if(!this.resizable){
 				return;
 			}
-			if(e.afterBounds.width < 350 || e.afterBounds.height < 460){
+			
+			if(Rectangle(e.afterBounds).width < 350 || (e.afterBounds).height < 460){
 				e.preventDefault();
 				return;
 			}
 			
-			_inputArea.width = e.afterBounds.width - 2;
-			_disArea.width = e.afterBounds.width;
-			_disArea.height = e.afterBounds.height - 155;
+			_inputArea.width = Rectangle(e.afterBounds).width - 2;
+			_disArea.width = Rectangle(e.afterBounds).width;
+			_disArea.height = (e.afterBounds).height - 155;
 			_inputArea.y = height - 155;
-			_scrollBar.x = e.afterBounds.width - 16;
-			_scrollBar.resize(0,e.afterBounds.height - 155);
+			_scrollBar.x = (e.afterBounds).width - 16;
+			_scrollBar.resize(0, Rectangle(e.afterBounds).height - 155);
 		}
 	}
 }

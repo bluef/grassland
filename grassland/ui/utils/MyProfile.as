@@ -44,9 +44,8 @@
 			_statusT = new TextField();
 			var t2:TextFormat = new TextFormat();
 			t2.color = 0xFFFFFF;
-			t2.font = "微软雅黑";
-			t2.size = 12;
-			t2.italic = true;
+			t2.font = "Arial";
+			t2.size = 11;
 			_statusT.textColor = 0xFFFFFF;
 			_statusT.defaultTextFormat = t2;
 			_statusT.width = 150;

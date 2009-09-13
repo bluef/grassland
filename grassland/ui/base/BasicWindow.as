@@ -48,12 +48,12 @@
 		}
 		
 		private function drawFramework():void {
-			if(_headerBitmap == null) {
+			if (_headerBitmap == null) {
 				_headerBitmap = new HeaderPNG(280, 85);
 			}
 			
 			_header = new Sprite();
-			with(_header.graphics) {
+			with (_header.graphics) {
 				lineStyle(0);
 				//beginFill(0xFFFFFF);
 				beginBitmapFill(_headerBitmap, null, false);
@@ -103,9 +103,9 @@
 			//_panel.filters = [filter];
 			_bg.addChild(_panel);
 			
-			if(this.resizable){
+			if (this.resizable) {
 				_resizeBlock = new Sprite();
-				with(_resizeBlock.graphics) {
+				with (_resizeBlock.graphics) {
 					lineStyle(0, 0xefefef);
 					beginFill(0x99ccee);
 					moveTo(13, 0);
@@ -152,11 +152,11 @@
 		}
 		
 		private function onResizeWin(e:NativeWindowBoundsEvent):void {
-			if(!this.resizable) {
+			if (!this.resizable) {
 				return;
 			}
 			
-			if(e.afterBounds.width < _minW || e.afterBounds.height < _minH) {
+			if (e.afterBounds.width < _minW || e.afterBounds.height < _minH) {
 				e.preventDefault();
 				return;
 			}
@@ -167,7 +167,7 @@
 			_bg.graphics.drawRoundRect(0, 0, width - 2, height - 2, 15, 15);
 			_bg.graphics.endFill();
 			
-			with(_header.graphics) {
+			with (_header.graphics) {
 				clear();
 				lineStyle(0);
 				beginBitmapFill(_headerBitmap, null, false);
@@ -181,7 +181,7 @@
 				endFill();
 			}
 			
-			_bar.width = width
+			_bar.width = width;
 			_closeBtn.x = width - _closeBtn.width - 18;
 			_minBtn.x = width - _closeBtn.width - _minBtn.width - 28;
 			_resizeBlock.x = width - 15.5;

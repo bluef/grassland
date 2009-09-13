@@ -11,8 +11,11 @@
 	import flash.events.MouseEvent;
 	import flash.events.NativeWindowBoundsEvent;
 	import flash.utils.getDefinitionByName;
+	import flash.geom.Rectangle;
+	
 	import fl.events.ScrollEvent;
 	//import fl.controls.UIScrollBar;
+	
 	import grassland.core.interfaces.ICommand;
 	import grassland.core.roster.RosterGroup;
 	import grassland.core.commands.*;
@@ -95,7 +98,7 @@
 			_scrollBar.addEventListener(ScrollEvent.SCROLL, onScroll);
 			_container.addChild(_scrollBar);
 			
-			//stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMWheel);
+			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMWheel);
 			
 			_mainMenu = new NativeMenu();
 
@@ -144,27 +147,30 @@
 		
 		private function onScroll(e:ScrollEvent):void {
 			//trace(e.target.scrollPosition);
-			_contactList.y = 0 - e.target.scrollPosition;
-			
+			//_contactList.y = 0 - e.target.scrollPosition;
+			_contactList.y = (0 - e.target.scrollPosition) * 80 + 5;
 		}
 		
 		private function onMWheel(e:MouseEvent):void {
-			if(e.delta > 0) {
-				if(_contactList.y < 0) {
+			if (e.delta > 0) {
+				if (_contactList.y < 0) {
 					_contactList.y += e.delta * 5;
-				}else {
+				} else {
 					_contactList.y = 0;
 				}
-			}else {
-				if(_contactList.y > 0 - _contactList.height + 500) {
-					_contactList.y += e.delta*5;
+			} else {
+				if (_contactList.y > 0 - _contactList.height + 500) {
+					_contactList.y += e.delta * 5;
 				}
 			}
-			_scrollBar.scrollPosition = 0 - _contactList.y;
+			//_scrollBar.scrollPosition = 0 - _contactList.y;
+			_contactList.y = (0 - _scrollBar.scrollPosition) * 80 + 5;
 		}
 		
 		private function resizeScrollbar(e:Event):void {
-			_scrollBar.maxScrollPosition = _contactList.height - 500;
+			//_scrollBar.maxScrollPosition = _contactList.height - 500;
+			_scrollBar.maxScrollPosition = (_contactList.visualHeight - _scrollBar.height) / 80;
+			
 		}
 		
 		private function showMainMenu(e:MouseEvent):void {
@@ -197,19 +203,20 @@
 		}
 		
 		private function onResizeWin(e:NativeWindowBoundsEvent):void {
-			if(!this.resizable){
+			if (!this.resizable) {
 				return;
 			}
-			if(e.afterBounds.width < 285 || e.afterBounds.height < 525){
+			
+			if (Rectangle(e.afterBounds).width < 285 || Rectangle(e.afterBounds).height < 525) {
 				e.preventDefault();
 				return;
 			}
 			
-			_container.width = e.afterBounds.width;
-			_msk.width = e.afterBounds.width;
-			_contactList.width = e.afterBounds.width;
-			_scrollBar.x = e.afterBounds.width - 14;
-			_scrollBar.resize(0,e.afterBounds.height - 115);
+			_container.width = Rectangle(e.afterBounds).width;
+			_msk.width = Rectangle(e.afterBounds).width;
+			_contactList.width = Rectangle(e.afterBounds).width;
+			_scrollBar.x = Rectangle(e.afterBounds).width - 14;
+			_scrollBar.resize(0, Rectangle(e.afterBounds).height - 115);
 		}
 	}
 }

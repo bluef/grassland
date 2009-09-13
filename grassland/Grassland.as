@@ -326,18 +326,20 @@
 		}
 		
 		private function onShowPresence(packet:PresencePacket):void{
-			if(packet.type == "unavailable"){
+			if (packet.type == "unavailable") {
 				packet.show = "offline";
-			}else{
+			} else {
 				//trace(packet.show == undefined);
 				trace(packet.show);
-				switch(packet.show){
+				switch (packet.show) {
 					case "away":
 					case "xa":
 						packet.show = "away";
 						break;
+						
 					case "dnd":
 						break;
+						
 					default:
 						packet.show = "online";
 						break;

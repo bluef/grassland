@@ -16,6 +16,7 @@
 		public static const UPDATED:String = "layout_updated";
 		private var _groupArr:Vector.<ContactGroup>;
 		private var _width:int = 270;
+		private var _height:Number = 0;
 		
 		public function ContactList() {
 			_groupArr = new Vector.<ContactGroup>();
@@ -28,8 +29,8 @@
 		
 		private function getGroupByName(s:String):int {
 			var l:int = _groupArr.length;
-			for(var i:int = 0;i<l;i++) {
-				if(ContactGroup(_groupArr[i]).gname == s) {
+			for (var i:int = 0;i<l;i++) {
+				if (ContactGroup(_groupArr[i]).gname == s) {
 					return i;
 				}
 			}
@@ -44,9 +45,9 @@
 			var contactItem:ContactListItem;
 			var _groupPos:int = getGroupByName(rosterGroup.name);
 			
-			if(_groupPos != -1) {//if this contact group exist
+			if (_groupPos != -1) {//if this contact group exist
 				//if the number of items in roster group differ from the one in contact group
-				while(l > ContactGroup(_groupArr[_groupPos]).itemCount) {
+				while (l > ContactGroup(_groupArr[_groupPos]).itemCount) {
 					addRoster = true;
 					//ll= ContactGroup(_groupArr[_groupPos]).itemCount;
 					//contactItem = new ContactListItem(ll,rosterGroup.getRosterItemAt(ll).nick,rosterGroup.getRosterItemAt(ll).show,rosterGroup.getRosterItemAt(ll).status);
@@ -56,12 +57,12 @@
 					ContactGroup(_groupArr[_groupPos]).addItem();
 				}
 				
-				while(l < ContactGroup(_groupArr[_groupPos]).itemCount)  {
+				while (l < ContactGroup(_groupArr[_groupPos]).itemCount)  {
 					addRoster = true;
 					ContactGroup(_groupArr[_groupPos]).removeItem();
 				}
 				
-			}else {//if there's no such contact group here
+			} else {//if there's no such contact group here
 				var newGroup:ContactGroup = new ContactGroup(rosterGroup.name);
 				newGroup.fold();
 				newGroup.addEventListener(ContactGroupEvent.FOLD,foldGroup,false,0,true);
@@ -90,7 +91,7 @@
 			}
 			
 			
-			if(addRoster) {
+			if (addRoster) {
 				trace("contactlist:Add");
 				//_groupArr[_groupPos].unfold();
 				//for(i = _groupPos+1;i<l;i++) {
@@ -101,7 +102,7 @@
 			
 			
 			ll = ContactGroup(_groupArr[_groupPos]).itemCount;
-			for(i = 0; i < ll; i++) {
+			for (i = 0; i < ll; i++) {
 				ContactGroup(_groupArr[_groupPos]).getItemAt(i).index = i;
 				if(rosterGroup.getRosterItemAt(i).nick != null) {
 					ContactGroup(_groupArr[_groupPos]).getItemAt(i).labelText = rosterGroup.getRosterItemAt(i).nick;
@@ -118,25 +119,53 @@
 		private function foldGroup(e:ContactGroupEvent):void {
 			var pos:int = getGroupByName(e.data);
 			var l:int = _groupArr.length;
-			for(var i:int = pos+1;i<l;i++) {
-				ContactGroup(_groupArr[i]).y -= (ContactGroup(_groupArr[pos]).itemCount*ContactListItem.BTNH);
+			
+			_height = 0;
+			var i:int;
+			
+			for (i = pos + 1; i < l; ++i) {
+				ContactGroup(_groupArr[i]).y -= (ContactGroup(_groupArr[pos]).itemCount * ContactListItem.BTNH);
+				
 			}
+			
 			ContactGroup(_groupArr[pos]).fold();
-			dispatchEvent(new Event(UPDATED,true));
+			
+			_groupArr.forEach(countHeight);
+			
+			trace("VISIUAL HEIGHT:", _height);
+			
+			dispatchEvent(new Event(UPDATED, true));
 		}
 		
 		private function unfoldGroup(e:ContactGroupEvent):void {
 			var pos:int = getGroupByName(e.data);
 			var l:int = _groupArr.length;
+			
+			_height = 0;
 			ContactGroup(_groupArr[pos]).unfold();
-			for(var i:int = pos+1;i<l;i++) {
+			
+			var i:int
+			
+			for (i = pos + 1; i < l; ++i) {
 				ContactGroup(_groupArr[i]).y += (ContactGroup(_groupArr[pos]).itemCount*ContactListItem.BTNH);
+				_height += ContactGroup(_groupArr[i]).visualHeight;
 			}
-			dispatchEvent(new Event(UPDATED,true));
+			
+			_groupArr.forEach(countHeight);
+			
+			dispatchEvent(new Event(UPDATED, true));
 		}
 		
 		public function scroll(scrollPosition:Number):void {
 			this.y = 0 - scrollPosition;
 		}
+		
+		public function get visualHeight():Number {
+			return _height;
+		};
+		
+		private function countHeight(item:ContactGroup, index:int, vector:Vector.<ContactGroup>):void {
+			_height += item.visualHeight;
+		};
 	}
 }

@@ -182,16 +182,7 @@
 			return found;
 		}
 		
-		public function getRosterGroupObjByName(s:String):RosterGroup {
-			/*
-			var pos:int = getRosterGroupByName(s);
-			if(pos != -1){
-				return _roster[pos];
-			}else{
-				return null;
-			}
-			*/
-			
+		public function getRosterGroupObjByName(s:String):RosterGroup {			
 			var searchFunc:Function = function (item:RosterGroup, index:int, vector:Vector.<RosterGroup>):Boolean {
 				return (RosterGroup(item).name == s);
 			}
@@ -239,34 +230,35 @@
 		public function updateRoster(s:RosterItem):void {
 			trace("update roster");
 			var j:int = 0;
-			var i:int = 0;
 			var found:Boolean = false;
 			var needToUpdate:Boolean = false;
+			
+			var tmpItem:RosterItem;
 			while (!found) {
-				var l:int = _roster[j].length;
-				for (i = 0; i < l ; ++i) {
-					if (RosterGroup(_roster[j]).getRosterItemAt(i).uid.toString() == RosterItem(s).uid.toString()){
-						
-						if (s.show != "offline") {
-							if(RosterGroup(_roster[j]).getRosterItemAt(i).uid.domain == "dormforce.net" && RosterGroup(_roster[j]).getRosterItemAt(i).avatar != null){
-								loadAvatar(RosterGroup(_roster[j]).getRosterItemAt(i).uid.node);
-							}
-						} else {
-							RosterGroup(_roster[j]).getRosterItemAt(i).avatar.dispose();
+				tmpItem = RosterGroup(_roster[j]).getRosterItemByJID(JID(RosterItem(s).uid));
+					
+				if (tmpItem != null) {
+					if (s.show != "offline") {
+						if (JID(tmpItem.uid).domain == "dormforce.net" && tmpItem.avatar != null) {
+							loadAvatar(JID(tmpItem.uid).node);
 						}
-						RosterGroup(_roster[j]).getRosterItemAt(i).show = s.show;
-						RosterGroup(_roster[j]).getRosterItemAt(i).status = s.status;
-						needToUpdate = true;
-						found = true;
-						break;
+					} else {
+						tmpItem.avatar.dispose();
 					}
+					
+					tmpItem.show = s.show;
+					tmpItem.status = s.status;
+					found = true;
+					needToUpdate = true;
+					break;
 				}
-				j++;
+				++j;
 			}
+			
 			if (needToUpdate) {
-				RosterGroup(_roster[j-1]).sort(_sorter);
-				RosterGroup(_roster[j-1]).countOnline();
-				dispatchEvent(new RosterUpdateEvent(j-1));
+				RosterGroup(_roster[j]).sort(_sorter);
+				RosterGroup(_roster[j]).countOnline();
+				dispatchEvent(new RosterUpdateEvent(j));
 			}
 		}
 		
@@ -286,7 +278,7 @@
 		private function loadAvatar(u:String):void {
 			var r:URLRequest = new URLRequest("http://www2.dormforce.net/talk/avatar.php?uid="+u);
 			var l:Loader = new Loader();
-			l.contentLoaderInfo.addEventListener(Event.COMPLETE,onAvatarLoaded);
+			l.contentLoaderInfo.addEventListener(Event.COMPLETE, onAvatarLoaded);
 			l.load(r);
 		}
 		
@@ -298,26 +290,28 @@
 			//getRosterItemByNode(u).avatar.addChild(e.target.content);
 		}
 		
-		public function updateAvatar(ss:String,bmp:BitmapData):void {
+		public function updateAvatar(ss:String, bmp:BitmapData):void {
 			var s:JID = new JID(ss + "@dormforce.net");
 			trace(s.toString());
 			var j:int = 0;
 			var i:int = 0;
 			var found:Boolean = false;
 			var needToUpdate:Boolean = false;
+			
+			var tmpItem:RosterItem;
 			 
 			while (!found) {
 				var l:int = _roster[j].length;
-				for (i = 0; i < l ; ++i) {
-					if (RosterGroup(_roster[j]).getRosterItemAt(i).uid.toString() == s.toString()) {
-						RosterGroup(_roster[j]).getRosterItemAt(i).avatar = bmp;
-						found = true;
-						break;
-					}
+				tmpItem = RosterGroup(_roster[j]).getRosterItemByJID(JID(s));
+				
+				if (tmpItem != null) {
+					tmpItem.avatar = bmp;
+					found = true;
+					break;
 				}
 				++j;
 			}
-			dispatchEvent(new RosterUpdateEvent(j-1));
+			dispatchEvent(new RosterUpdateEvent(j));
 		}
 		
 		//add a msg packet into buffer and wait for beening showing
@@ -331,7 +325,7 @@
 			
 			//get the first index of msg packet associated with pfrom found and delete the packet at that index
 			trace("pfrom =",pfrom.toString());
-			var packet:MessagePacket = getMsgBufferIndex(pfrom);
+			var packet:MessagePacket = getMsgBufferByJID(pfrom);
 			//trace("pos =",pos)
 			_msgBuffer.splice(_msgBuffer.indexOf(packet), 1);
 			//var packet:MessagePacket = new MessagePacket();
@@ -348,18 +342,7 @@
 		}
 		
 		//get the first index of msg packet associated with pfrom found
-		public function getMsgBufferIndex(pfrom:JID):MessagePacket {
-			//var pos:int;
-			/*
-			var l:int = _msgBuffer.length;
-			for (var i:int = 0; i < l; ++i) {
-				if (MessagePacket(_msgBuffer[i]).from.toString() == pfrom.toString()) {
-					break;
-				}
-			}
-			return i;
-			*/
-			
+		public function getMsgBufferByJID(pfrom:JID):MessagePacket {		
 			var searchFunc:Function = function (item:MessagePacket, index:int, vector:Vector.<MessagePacket>):Boolean {
 				return (MessagePacket(item).from.toString() == pfrom.toString());
 			}
@@ -373,15 +356,13 @@
 		}
 		
 		//get the number of unread msg associated with specified contact 
-		public function getMsgCountByRoster(pfrom:JID):int {
-			var num:int;
-			var l:int = _msgBuffer.length;
-			for (var i:int = 0;i < l; ++i) {
-				if (MessagePacket(_msgBuffer[i]).from == pfrom) {
-					++num;
-				}
+		public function getMsgCountByRoster(pfrom:JID):int {			
+			var searchFunc:Function = function (item:MessagePacket, index:int, vector:Vector.<MessagePacket>):Boolean {
+				return (MessagePacket(item).from == pfrom);
 			}
-			return num;
+			
+			var filterItems:Vector.<MessagePacket> = _msgBuffer.filter(searchFunc, null);
+			return filterItems.length;
 		}
 		
 		//get the length of msg buffer
@@ -400,7 +381,7 @@
 				if (_presenceBuffer.length == 0) {
 					r = new RosterItem(packet.from, packet.show, packet.status);
 					updateRoster(r);
-				} else {
+				} else {			
 					for (var j:int = 0; j < l; ++j) {
 						if (PresencePacket(_presenceBuffer[j]).from.toString() == packet.from.toString()) {
 							_presenceBuffer.splice(j, 1, packet);
@@ -421,12 +402,12 @@
 			var p:PresencePacket; 
 			trace("start update");
 			trace(_presenceBuffer.length);
-			while (_presenceBuffer.length > 0){
+			while (_presenceBuffer.length > 0) {
 				p = _presenceBuffer.pop();
-				r = new RosterItem(p.from,p.show,p.status);
+				r = new RosterItem(p.from, p.show, p.status);
 				updateRoster(r);
 			}
-			trace(_presenceBuffer.length);
+			//trace(_presenceBuffer.length);
 		}
 		
 		public function get contextMenuXML():XML {

@@ -61,17 +61,7 @@
 		}
 		
 		//return roster item by a specified JID
-		public function getRosterItemByJID(j:JID):RosterItem {
-			/*
-			var l:int = _itemArr.length;
-			for (var i:int = 0;i<l;i++){
-				if (_itemArr[i].uid.toString() == j.toString()){
-					break;
-				}
-			}
-			return _itemArr[i];
-			*/
-			
+		public function getRosterItemByJID(j:JID):RosterItem {			
 			var searchFunc:Function = function (item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
 				return (JID(item.uid).toString() == JID(j).toString());
 			}
@@ -91,15 +81,6 @@
 		
 		public function countOnline():void {
 			_onlineCount = 0;
-			/*
-			for (var i:uint = 0;i<_itemArr.length;i++){
-				if (_itemArr[i].show != "offline"){
-					_onlineCount++;
-				}else{
-					break;
-				}
-			}
-			*/
 			
 			var searchFunc:Function = function (item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
 				return (item.show == "offline");

@@ -22,11 +22,11 @@
 		private var _icon:GroupIcon;
 
 		public function FoldCtrl (label:String):void {
-			if(upStyle == null){
+			if (upStyle == null) {
 				upStyle = setUpStyle(0xf4f4f4);
 			}
 			
-			if(hoverStyle == null){
+			if (hoverStyle == null) {
 				hoverStyle = setHoverStyle(0xEDFCFF);
 			}
 			
@@ -35,8 +35,8 @@
 			_hovered = false;
 			
 			drawBG();
-			addEventListener(MouseEvent.MOUSE_OVER,onHover);
-			addEventListener(MouseEvent.MOUSE_OUT,onOut);
+			addEventListener(MouseEvent.MOUSE_OVER, onHover);
+			addEventListener(MouseEvent.MOUSE_OUT, onOut);
 			useHandCursor = true;
 			buttonMode = true;
 			_text = label;
@@ -44,21 +44,20 @@
 			_height = 30;
 			_label = new LabelText(_text,270);
 			_label.x = 30;
-			_label.y = (_height - _label.textHeight) / 2;
-			_label.y -= 2;
+			_label.y = (_height - _label.textHeight) / 2 - 2;
 			addChild(_label);
 			
 			_icon = new GroupIcon();
 			_icon.x = 17;
-			_icon.y = 12;
+			_icon.y = 15;
 			addChild(_icon);
 		}
 		
 		public function set label(s:String):void{
 			_text = s;
-			if(_text != null){
+			if (_text != null) {
 				_label.text = _text;
-			}else{
+			} else {
 				_label.text = '';
 			}
 		}
@@ -69,33 +68,34 @@
 		
 		private function drawBG():void{
 			_seprateLine = new Shape();
-			with(_seprateLine.graphics){
-				lineStyle(0,0xe6e6e6);
-				moveTo(0,_h-2);
-				lineTo(_w,_h-2);
+			with (_seprateLine.graphics) {
+				lineStyle(0, 0xe6e6e6);
+				moveTo(0, _h - 2);
+				lineTo(_w, _h - 2);
 			}
 			addChild(_seprateLine);
+			
 			_bg = new Sprite();
-			with(_bg.graphics){
-				lineStyle(0,0x999999,0);
+			with (_bg.graphics) {
+				lineStyle(0, 0x999999, 0);
 				beginFill(upStyle.color);
-					drawRect(0,0,_w,_h);
+				drawRect(0, 0, _w, _h);
 				endFill();
 			}
-			_bg.mouseEnabled = false;
+			_bg.mouseEnabled = true;
 			addChildAt(_bg, 0);
 			hitArea = _bg;
 		}
 		
 		private function onHover(e:MouseEvent):void{
-			if(!_hovered){
+			if (!_hovered) {
 				_bg.transform.colorTransform = hoverStyle;
 				_hovered = true;
 			}
 		}
 		
 		private function onOut(e:MouseEvent):void{
-			if(_hovered){
+			if (_hovered) {
           		_bg.transform.colorTransform = upStyle;
           		_hovered = false;
 			}
@@ -115,9 +115,9 @@
 		}
 		
 		public function set fold(s:Boolean):void{
-			if(s){
+			if (s) {
 				_icon.fold = true;
-			}else{
+			} else {
 				_icon.fold = false;
 			}
 		}
