@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?><application xmlns="http://ns.adobe.com/air/application/1.5"> 
+<id>net.dormforce.Grassland</id> 
+<version>build 2009/09/13</version> 
+<filename>Grassland</filename> 
+<description>a simple xmpp implement</description> 
+<name>Grassland</name> 
+<copyright>BlueF</copyright> 
+<initialWindow> 
+<content>Grassland.swf</content> 
+<systemChrome>none</systemChrome> 
+<transparent>true</transparent> 
+<visible>false</visible> 
+<maximizable>false</maximizable> 
+<minimizable>true</minimizable> 
+<resizable>false</resizable> 
+</initialWindow> 
+<icon> 
+<image128x128>appIcons/AIRApp_128.png</image128x128> 
+<image48x48>appIcons/AIRApp_48.png</image48x48> 
+<image32x32>appIcons/AIRApp_32.png</image32x32> 
+<image16x16>appIcons/AIRApp_16.png</image16x16> 
+</icon> 
+<customUpdateUI>false</customUpdateUI> 
+<allowBrowserInvocation>false</allowBrowserInvocation> 
+</application> 

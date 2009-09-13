@@ -1,0 +1,55 @@
+<projectDescription>
+  <id>1226637761020</id>
+  <name>grassland</name>
+  <asVersion>0</asVersion>
+  <boundTemplate>file:///C|/Users/BlueF/AppData/Local/Adobe/Flash CS4/en/Configuration/Project/templates/boundClass_as3.as</boundTemplate>
+  <classTemplate>file:///C|/Users/BlueF/AppData/Local/Adobe/Flash CS4/en/Configuration/Project/templates/standardClass_as3.as</classTemplate>
+  <classPath>.</classPath>
+  <defaultApp/>
+  <rootURI>file:///E|/code/nut/grassland/</rootURI>
+  <flexSDK/>
+  <sources editable="false"/>
+  <libraries editable="false"/>
+  <externalLibraries editable="false"/>
+  <compileList editable="false"/>
+  <recentFiles editable="false">
+    <uri label="XMPPStream.as">file:///E|/code/nut/grassland/xmpp/XMPPStream.as</uri>
+    <uri label="Env.as">file:///E|/code/nut/grassland/core/Env.as</uri>
+    <uri label="XMPPChannel.as">file:///E|/code/nut/grassland/xmpp/XMPPChannel.as</uri>
+    <uri label="CmdBtn.as">file:///E|/code/nut/grassland/ui/utils/CmdBtn.as</uri>
+    <uri label="GroupIcon.as">file:///E|/code/nut/grassland/ui/utils/contact/GroupIcon.as</uri>
+    <uri label="FoldCtrl.as">file:///E|/code/nut/grassland/ui/utils/contact/FoldCtrl.as</uri>
+    <uri label="LocalStroage.as">file:///E|/code/nut/grassland/core/LocalStroage.as</uri>
+    <uri label="LoginWindow.as">file:///E|/code/nut/grassland/ui/windows/LoginWindow.as</uri>
+    <uri label="Grassland.as">file:///E|/code/nut/grassland/Grassland.as</uri>
+    <uri label="BasicWindow.as">file:///E|/code/nut/grassland/ui/windows/BasicWindow.as</uri>
+    <uri label="CloseWinEvent.as">file:///E|/code/nut/grassland/ui/events/CloseWinEvent.as</uri>
+    <uri label="MsgWindowConfig.as">file:///E|/code/nut/grassland/ui/managers/MsgWindowConfig.as</uri>
+    <uri label="MsgWindowManager.as">file:///E|/code/nut/grassland/ui/managers/MsgWindowManager.as</uri>
+    <uri label="MessageWindow.as">file:///E|/code/nut/grassland/ui/windows/MessageWindow.as</uri>
+    <uri label="ContactListItem.as">file:///E|/code/nut/grassland/ui/utils/contact/ContactListItem.as</uri>
+    <uri label="MainWindow.as">file:///E|/code/nut/grassland/ui/windows/MainWindow.as</uri>
+    <uri label="ContactListEvent.as">file:///E|/code/nut/grassland/ui/events/ContactListEvent.as</uri>
+    <uri label="ContactGroup.as">file:///E|/code/nut/grassland/ui/utils/contact/ContactGroup.as</uri>
+    <uri label="ContactList.as">file:///E|/code/nut/grassland/ui/utils/contact/ContactList.as</uri>
+    <uri label="XMPPDataPaster.as">file:///E|/code/nut/grassland/xmpp/XMPPDataPaster.as</uri>
+    <uri label="RosterItem.as">file:///E|/code/nut/grassland/core/roster/RosterItem.as</uri>
+    <uri label="RosterGroup.as">file:///E|/code/nut/grassland/core/roster/RosterGroup.as</uri>
+    <uri label="LightIcon.as">file:///E|/code/nut/grassland/ui/utils/icons/LightIcon.as</uri>
+    <uri label="DarkIcon.as">file:///E|/code/nut/grassland/ui/utils/icons/DarkIcon.as</uri>
+    <uri label="RosterUpdateEvent.as">file:///E|/code/nut/grassland/core/events/RosterUpdateEvent.as</uri>
+    <uri label="StatusSorter.as">file:///E|/code/nut/grassland/core/sorters/StatusSorter.as</uri>
+    <uri label="BasicWindow.as">file:///E|/code/nut/grassland/ui/base/BasicWindow.as</uri>
+    <uri label="LabelText.as">file:///E|/code/nut/grassland/ui/utils/LabelText.as</uri>
+    <uri label="BasicBtn.as">file:///E|/code/nut/grassland/ui/base/BasicBtn.as</uri>
+    <uri label="NotifyEvent.as">file:///E|/code/nut/grassland/ui/events/NotifyEvent.as</uri>
+    <uri label="Notify.as">file:///E|/code/nut/grassland/ui/windows/Notify.as</uri>
+    <uri label="NotifyManager.as">file:///E|/code/nut/grassland/ui/managers/NotifyManager.as</uri>
+    <uri label="AbstractPacket.as">file:///E|/code/nut/grassland/xmpp/packets/AbstractPacket.as</uri>
+    <uri label="DataEvent.as">file:///E|/code/nut/grassland/xmpp/events/DataEvent.as</uri>
+    <uri label="DefaultTextFormat.as">file:///E|/code/nut/grassland/ui/utils/DefaultTextFormat.as</uri>
+    <uri label="ProfileBlock.as">file:///E|/code/nut/grassland/ui/utils/ProfileBlock.as</uri>
+    <uri label="StateIndicator.as">file:///E|/code/nut/grassland/ui/utils/StateIndicator.as</uri>
+  </recentFiles>
+  <locations editable="false"/>
+</projectDescription>
