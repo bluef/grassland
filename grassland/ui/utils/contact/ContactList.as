@@ -6,6 +6,7 @@
 	
 	import grassland.core.roster.RosterGroup;
 	import grassland.core.roster.RosterItem;
+	import grassland.core.utils.JID;
 	import grassland.ui.interfaces.IScrollable;
 	import grassland.ui.utils.contact.ContactListItem;
 	import grassland.ui.utils.contact.ContactGroup;
@@ -49,11 +50,6 @@
 				//if the number of items in roster group differ from the one in contact group
 				while (l > ContactGroup(_groupArr[_groupPos]).itemCount) {
 					addRoster = true;
-					//ll= ContactGroup(_groupArr[_groupPos]).itemCount;
-					//contactItem = new ContactListItem(ll,rosterGroup.getRosterItemAt(ll).nick,rosterGroup.getRosterItemAt(ll).show,rosterGroup.getRosterItemAt(ll).status);
-					//contactItem = new ContactListItem(ll,rosterGroup.getRosterItemAt(ll).nick,rosterGroup.getRosterItemAt(ll).show,rosterGroup.getRosterItemAt(ll).status);
-					//contactItem.avatar = rosterGroup.getRosterItemAt(ll).avatar;
-					//ContactGroup(_groupArr[_groupPos]).addItem(contactItem);
 					ContactGroup(_groupArr[_groupPos]).addItem();
 				}
 				
@@ -65,54 +61,66 @@
 			} else {//if there's no such contact group here
 				var newGroup:ContactGroup = new ContactGroup(rosterGroup.name);
 				newGroup.fold();
-				newGroup.addEventListener(ContactGroupEvent.FOLD,foldGroup,false,0,true);
-				newGroup.addEventListener(ContactGroupEvent.UNFOLD,unfoldGroup,false,0,true);
-				newGroup.addEventListener(ContactListEvent.ITEM_CLICKED,onClick,false,0,true);
+				newGroup.addEventListener(ContactGroupEvent.FOLD, foldGroup, false, 0, true);
+				newGroup.addEventListener(ContactGroupEvent.UNFOLD, unfoldGroup, false, 0, true);
+				newGroup.addEventListener(ContactListEvent.ITEM_CLICKED, onClick, false, 0, true);
 				_groupArr.push(newGroup);
-				ContactGroup(_groupArr[_groupArr.length-1]).y = ContactGroup.CTRL_H*(_groupArr.length-1);
-				while(l > ContactGroup(_groupArr[_groupArr.length-1]).itemCount) {
+				ContactGroup(_groupArr[_groupArr.length - 1]).y = ContactGroup.CTRL_H * (_groupArr.length - 1);
+				while (l > ContactGroup(_groupArr[_groupArr.length - 1]).itemCount) {
 					addRoster = true;
-					/*
-					ll = ContactGroup(_groupArr[_groupArr.length-1]).itemCount;
-					contactItem = new ContactListItem(ll,RosterItem(rosterGroup.getRosterItemAt(ll)).uid.node,rosterGroup.getRosterItemAt(ll).show,rosterGroup.getRosterItemAt(ll).status);
-					contactItem.avatar = rosterGroup.getRosterItemAt(ll).avatar;
-					ContactGroup(_groupArr[_groupArr.length-1]).addItem(contactItem);
-					*/
-					ContactGroup(_groupArr[_groupArr.length-1]).addItem();
+					ContactGroup(_groupArr[_groupArr.length - 1]).addItem();
 				}
 				
-				while(l < ContactGroup(_groupArr[_groupArr.length-1]).itemCount)  {
+				while (l < ContactGroup(_groupArr[_groupArr.length - 1]).itemCount)  {
 					addRoster = true;
-					ContactGroup(_groupArr[_groupArr.length-1]).removeItem();
+					ContactGroup(_groupArr[_groupArr.length - 1]).removeItem();
 				}
 				
-				_groupPos = _groupArr.length-1;
+				_groupPos = _groupArr.length - 1;
 				addChild(ContactGroup(_groupArr[_groupArr.length-1]));
 			}
 			
 			
 			if (addRoster) {
 				trace("contactlist:Add");
-				//_groupArr[_groupPos].unfold();
-				//for(i = _groupPos+1;i<l;i++) {
-				//	_groupArr[i].y += (_groupArr[_groupPos].itemCount*ContactListItem.BTNH);
-				//}
-				dispatchEvent(new Event(UPDATED,true));
+				dispatchEvent(new Event(UPDATED, true));
 			}
 			
 			
+			/*
 			ll = ContactGroup(_groupArr[_groupPos]).itemCount;
+			
 			for (i = 0; i < ll; i++) {
 				ContactGroup(_groupArr[_groupPos]).getItemAt(i).index = i;
 				if(rosterGroup.getRosterItemAt(i).nick != null) {
 					ContactGroup(_groupArr[_groupPos]).getItemAt(i).labelText = rosterGroup.getRosterItemAt(i).nick;
-				}else {
+				} else {
 					ContactGroup(_groupArr[_groupPos]).getItemAt(i).labelText = rosterGroup.getRosterItemAt(i).uid.node;
 				}
 				ContactGroup(_groupArr[_groupPos]).getItemAt(i).show = rosterGroup.getRosterItemAt(i).show;
 				ContactGroup(_groupArr[_groupPos]).getItemAt(i).avatar = rosterGroup.getRosterItemAt(i).avatar;
 				ContactGroup(_groupArr[_groupPos]).getItemAt(i).statusText = rosterGroup.getRosterItemAt(i).status;
 			}
+			*/
+			var tmpRosterItem:RosterItem;
+			
+			var foreachFunc:Function = function (item:ContactListItem, index:int, vector:Vector.<ContactListItem>):void {
+				ContactListItem(item).index = index;
+				
+				tmpRosterItem = RosterGroup(rosterGroup).getRosterItemAt(index);
+				
+				if (tmpRosterItem.nick != null) {
+					ContactListItem(item).labelText = tmpRosterItem.nick;
+				} else {
+					ContactListItem(item).labelText = JID(tmpRosterItem.uid).node;
+				}
+				
+				ContactListItem(item).show = tmpRosterItem.show;
+				ContactListItem(item).avatar = tmpRosterItem.avatar;
+				ContactListItem(item).statusText = tmpRosterItem.status;
+			};
+			
+			ContactGroup(_groupArr[_groupPos]).items.forEach(foreachFunc, null);
 			
 		}
 		
@@ -132,8 +140,6 @@
 			
 			_groupArr.forEach(countHeight);
 			
-			trace("VISIUAL HEIGHT:", _height);
-			
 			dispatchEvent(new Event(UPDATED, true));
 		}
 		
@@ -148,7 +154,6 @@
 			
 			for (i = pos + 1; i < l; ++i) {
 				ContactGroup(_groupArr[i]).y += (ContactGroup(_groupArr[pos]).itemCount*ContactListItem.BTNH);
-				_height += ContactGroup(_groupArr[i]).visualHeight;
 			}
 			
 			_groupArr.forEach(countHeight);

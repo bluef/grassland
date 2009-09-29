@@ -64,9 +64,9 @@
 		}
 		
 		//load local config xml file;
-		public function loadConfig(user:String,pw:String):void {
+		public function loadConfig(user:String, pw:String):void {
 			trace("config loaded");
-			_myProfile = new UserProfile(user,pw);
+			_myProfile = new UserProfile(user, pw);
 			
 		}
 		
@@ -75,7 +75,7 @@
 		}
 		
 		public function get myProfile():UserProfile {
-			trace("_myProfile =",_myProfile.show)
+			//trace("_myProfile =", _myProfile.show)
 			return _myProfile;
 		}
 		
@@ -120,7 +120,7 @@
 		public function fillRoster(s:Vector.<RosterItem>):void {
 			var l:int = s.length;
 			var i:int;
-			for (i = 0;i<l;i++) {
+			for (i = 0; i < l; ++i) {
 				if (RosterItem(s[i]).nick == null || RosterItem(s[i]).nick == '') {
 					RosterItem(s[i]).nick = RosterItem(s[i]).uid.node;
 				}
@@ -128,7 +128,7 @@
 				if (RosterItem(s[i]).group == null || RosterItem(s[i]).group == '') {
 					RosterItem(s[i]).group = "未命名";
 				}
-				trace(s[i].group);
+				trace("ROSTER GROUP FOUND: ", s[i].group);
 				
 				var existGroup:RosterGroup = getRosterGroupObjByName(RosterItem(s[i]).group);
 				//var pos:int;
@@ -183,11 +183,9 @@
 		}
 		
 		public function getRosterGroupObjByName(s:String):RosterGroup {			
-			var searchFunc:Function = function (item:RosterGroup, index:int, vector:Vector.<RosterGroup>):Boolean {
-				return (RosterGroup(item).name == s);
-			}
+			_rosterGroupNameForSearch = s;
 			
-			var filterItems:Vector.<RosterGroup> = _roster.filter(searchFunc, null);
+			var filterItems:Vector.<RosterGroup> = _roster.filter(searchRosterGroupObjByName, null);
 			
 			if (filterItems.length == 0) {
 				return null;
@@ -195,6 +193,12 @@
 				return filterItems[0];
 			}
 			
+		}
+		
+		private var _rosterGroupNameForSearch:String;
+		
+		private function searchRosterGroupObjByName(item:RosterGroup, index:int, vector:Vector.<RosterGroup>):Boolean {
+			return (RosterGroup(item).name == _rosterGroupNameForSearch);
 		}
 		
 		public function setSorter(s:String):void {

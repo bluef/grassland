@@ -45,7 +45,7 @@
 		private var _searchBox:InputField;
 		
 		public function MainWindow() {
-			trace("main window inited");
+			trace("INITIATING MAIN WINDOWN");
 			
 			super(285, 525, true, 285, 525);
 			title = "Grassland";
@@ -181,9 +181,9 @@
 		
 		private function addMenuItem(label:String, cmd:String):void {
 			var item:NativeMenuItem = _mainMenu.addItem(new NativeMenuItem(label));
-			trace("grassland.core.commands." + cmd);
-			
-			/*var cmdClass:Class = getDefinitionByName("grassland.core.commands." + cmd) as Class;
+			trace("ADD MENUITEM: grassland.core.commands." + cmd);
+			/*
+			var cmdClass:Class = getDefinitionByName("grassland.core.commands." + cmd) as Class;
 			var o:Object = new Object();
 			o.command = new cmdClass();
 			o.arg = label;
@@ -193,8 +193,8 @@
 		}
 		
 		private function onItemSelected(e:Event):void {
-			var cmd:ICommand = e.target.data.command;
-			cmd.setArgs(e.target.data.arg);
+			var cmd:ICommand = NativeMenuItem(e.target).data.command;
+			cmd.setArgs(NativeMenuItem(e.target).data.arg);
 			cmd.exec();
 		}
 		

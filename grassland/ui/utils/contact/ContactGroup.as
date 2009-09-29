@@ -40,27 +40,22 @@
 			addChild(_foldCtrl);
 		}
 		
-		public function addItem():void {
+		public function addItem():ContactListItem {
 			_itemArr.push(new ContactListItem());
-			ContactListItem(_itemArr[_itemArr.length-1]).contextMenu = ContextMenuManager.getInstance().menu;
-			ContactListItem(_itemArr[_itemArr.length-1]).y = (_itemArr.length-1)*ContactListItem.BTNH+CTRL_H;
-			addChild(ContactListItem(_itemArr[_itemArr.length-1]));
-			ContactListItem(_itemArr[_itemArr.length-1]).addEventListener(MouseEvent.CLICK,onItemClick,false,0,true);
+			ContactListItem(_itemArr[_itemArr.length - 1]).contextMenu = ContextMenuManager.getInstance().menu;
+			ContactListItem(_itemArr[_itemArr.length - 1]).y = (_itemArr.length - 1)*ContactListItem.BTNH + CTRL_H;
+			addChild(ContactListItem(_itemArr[_itemArr.length - 1]));
+			ContactListItem(_itemArr[_itemArr.length - 1]).addEventListener(MouseEvent.CLICK,onItemClick,false,0,true);
+			
+			return ContactListItem(_itemArr[_itemArr.length - 1]);
 		}
 		
-		/*
-		public function addItem(s:ContactListItem):void {
-			_itemArr.push(s.clone());
-			_itemArr[_itemArr.length-1]).contextMenu = ContextMenuManager.getInstance().menu;
-			ContactListItem(_itemArr[_itemArr.length-1]).y = (_itemArr.length-1)*ContactListItem.BTNH+CTRL_H;
-			addChild(ContactListItem(_itemArr[_itemArr.length-1]));
-			ContactListItem(_itemArr[_itemArr.length-1]).addEventListener(MouseEvent.CLICK,onItemClick);
-		}*/
-		
-		public function removeItem():void {
+		public function removeItem():ContactListItem {
 			var item:ContactListItem = _itemArr.pop();
 			ContactListItem(item).removeEventListener(MouseEvent.CLICK, onItemClick);
 			removeChild(ContactListItem(item));
+			
+			return item;
 		}
 		
 		public function onClick(e:MouseEvent):void {
@@ -118,6 +113,10 @@
 		
 		public function get visualHeight():Number {
 			return _msk.height;
+		};
+		
+		public function get items():Vector.<ContactListItem> {
+			return _itemArr;
 		};
 	}
 }

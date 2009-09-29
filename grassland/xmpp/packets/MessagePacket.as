@@ -50,7 +50,7 @@
 			_from = new JID(pxmlsanza.@from);
 			_type = pxmlsanza.@type;
 			_body = pxmlsanza.ns::body;
-			trace("msg create,body =",_body,"from =",_from.toString());
+			//trace("msg create,body =", _body, "from =", _from.toString());
         }
 		
 		public function clone():MessagePacket{

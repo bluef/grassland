@@ -13,6 +13,7 @@
 	import flash.ui.Keyboard;
 	import flash.text.TextField;
 	import flash.text.TextFieldType;
+	import flash.text.StyleSheet;
 	import flash.geom.Rectangle;
 	
 	import fl.events.ScrollEvent;
@@ -68,12 +69,11 @@
 			_disArea.multiline = true;
 			_disArea.wordWrap = true;
 			_disArea.defaultTextFormat = txtFormat;
-			_disArea.border = true;
-			_disArea.width = width - 17;
+			_disArea.width = width - 20;
 			
 			_disArea.height = 305;
 			_disArea.x = 0;
-			_disArea.y = 0;
+			_disArea.y = 5;
 			
 			_panel.addChild(_disArea);
 			
@@ -104,7 +104,7 @@
 		
 		private function drawBackground():void {
 			var bg:Sprite = new Sprite();
-			with(bg.graphics) {
+			with (bg.graphics) {
 				lineStyle(1);
 				beginFill(0x000000);
 					drawRoundRect(0, 0, 480, 500, 5, 5);
@@ -176,7 +176,9 @@
 		}
 		
 		public function addText(pmsg:String):void {
-			_disArea.htmlText += pmsg + "<br /><br />";
+			//_disArea.htmlText += pmsg + "<br />";
+			_disArea.htmlText = [_disArea.htmlText, pmsg + "<br />"].join('');
+			trace("ADD TEXT:", pmsg);
 			//_scrollBar.maxScrollPosition = (_disArea.maxScrollV - _scrollBar.height) / 50;
 			
 			_disArea.scrollV = _disArea.maxScrollV;
@@ -220,8 +222,15 @@
 		
 		public function dispose():void {
 			_guestProfile.disposeAvatar();
+			_disArea.styleSheet = null;
 			super.close();
 		}
+		
+		public function set styleSheet(value:StyleSheet):void {
+			if (value != null) {
+				_disArea.styleSheet = value;
+			}
+		};
 		
 		private function loadAvatar(u:String):void {
 			var r:URLRequest = new URLRequest("http://www2.dormforce.net/cache/imgc.php?a=get&m=uid&u=" + u);

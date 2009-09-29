@@ -62,16 +62,20 @@
 		
 		//return roster item by a specified JID
 		public function getRosterItemByJID(j:JID):RosterItem {			
-			var searchFunc:Function = function (item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
-				return (JID(item.uid).toString() == JID(j).toString());
-			}
+			_rosterJIDForSearch = j;
 			
-			var filterItems:Vector.<RosterItem> = _itemArr.filter(searchFunc, null);
+			var filterItems:Vector.<RosterItem> = _itemArr.filter(searchRosterGroupObjByName, null);
 			if (filterItems.length == 0) {
 				return null;
 			} else {
 				return filterItems[0];
 			}
+		}
+		
+		private var _rosterJIDForSearch:JID;
+		
+		private function searchRosterGroupObjByName(item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
+			return (JID(item.uid).toString() == JID(_rosterJIDForSearch).toString());
 		}
 		
 		public function sort(sorter:ISorter):void {

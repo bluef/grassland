@@ -64,7 +64,7 @@
 				*/
 				u = new UserProfile(o.user,o.pw);
 				u.show = o.show;
-				trace("get:",u.show);
+				trace("LOCAL STORAGE>> GET:", u.show);
 				u.status = o.status;
 				return u;
 			}else{

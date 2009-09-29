@@ -298,7 +298,7 @@
 		
 		//handle presence packet
 		private function onPresence(e:PresenceEvent):void{
-			trace("on presence:",e.data.from.valueOf(),":",e.data.type,":",e.data.show);
+			trace("PRESENCE PACKET:", e.data.from.valueOf(), "TYPE:", e.data.type, "SHOW:", e.data.show);
 			if(e.data.from.node != '' && e.data.from.node != null){
 				var packet:PresencePacket = PresencePacket(e.data);
 				switch(packet.type){

@@ -22,7 +22,7 @@ package grassland.core.commands {
 		}
 		
 		public function setArgs(... args):void {
-			_args = args.concat();
+			//_args = args.concat();
 		}
 	}
 }

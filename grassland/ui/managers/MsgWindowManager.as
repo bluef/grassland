@@ -4,10 +4,13 @@
 	import flash.desktop.NotificationType;
 	import grassland.core.Env;
 	import grassland.core.utils.JID;
+	import grassland.core.utils.UserProfile;
 	import grassland.core.roster.RosterItem;
 	import grassland.ui.managers.MsgWindowConfig;
 	import grassland.ui.windows.MessageWindow;
 	import grassland.ui.events.*;
+	import grassland.ui.interfaces.IDialogTemple;
+	import grassland.ui.utils.dialogTemples.ClassicDialogTemple;
 	import grassland.xmpp.packets.MessagePacket;
 	
 	public class MsgWindowManager extends EventDispatcher {
@@ -15,19 +18,22 @@
 		//store msg window instances
 		private var _winArr:Vector.<MessageWindow>;
 		
-		public function MsgWindowManager(singlentonEnforcer:SingletonEnforcer){
+		private var _temple:IDialogTemple;
+		
+		public function MsgWindowManager(singlentonEnforcer:SingletonEnforcer) {
 			_winArr = new Vector.<MessageWindow>();
+			_temple = new ClassicDialogTemple();
 		}
 		
-		public static function getInstance():MsgWindowManager{
-			if(MsgWindowManager._instance == null){
+		public static function getInstance():MsgWindowManager {
+			if (MsgWindowManager._instance == null) {
 				MsgWindowManager._instance = new MsgWindowManager(new SingletonEnforcer());
 			}
 			return MsgWindowManager._instance;
 		}
 		
 		//append msg to the chat log panel
-		public function appendMsg(config:MsgWindowConfig,packet:MessagePacket):void{
+		public function appendMsg(config:MsgWindowConfig, packet:MessagePacket):void {
 			//get the index of specified window configuration and update it
 			var tmpWin:MessageWindow = searchWin(config);
 			var msg:String = packet.body;
@@ -35,15 +41,17 @@
 			msg = msg.replace(/\>/g, "&gt;");
 			//msg = msg.replace(/\n/g, "<br />");
 			var r:RosterItem = Env.getInstance().getRosterItemByJID(packet.from);
-			if(r.nick == null || r.nick == ''){
-				tmpWin.addText("  <b>" + packet.from.node + " :</b><br />    " + msg);
-			}else{
-				tmpWin.addText("  <b>" + r.nick + " :</b><br />    " + msg);
+			if (r.nick == null || r.nick == '') {
+				//tmpWin.addText("  <b>" + packet.from.node + " :</b><br />    " + msg);
+				tmpWin.addText(addDialog(JID(packet.from).toString(), msg));
+			} else {
+				//tmpWin.addText("  <b>" + r.nick + " :</b><br />    " + msg);
+				tmpWin.addText(addDialog(r.nick, msg));
 			}
 			tmpWin.guestTyping("stopped");
 		}
 		
-		private function searchWin(c:MsgWindowConfig):MessageWindow{
+		private function searchWin(c:MsgWindowConfig):MessageWindow {
 			/*
 			var l:uint = _winArr.length;
 			for(var i:uint = 0;i<l;i++){
@@ -66,24 +74,25 @@
 			}
 		}
 		
-		public function isWinActived(c:MsgWindowConfig):Boolean{
-			if(searchWin(c) != null){
+		public function isWinActived(c:MsgWindowConfig):Boolean {
+			if (searchWin(c) != null) {
 				return true;
-			}else{
+			} else {
 				return false;
 			}
 		}
 		
 		//create a new msg window with paticular configure file
-		public function newMsgWindow(config:MsgWindowConfig):MessageWindow{
-			trace("open new msg win:",config.guest.uid.node);
+		public function newMsgWindow(config:MsgWindowConfig):MessageWindow {
+			trace("NEW MSG WINDOW:", config.guest.uid.node);
 			var tmpWin:MessageWindow = searchWin(config);
-			if(tmpWin != null){
+			if (tmpWin != null) {
 				tmpWin.notifyUser(NotificationType.CRITICAL);
 				return tmpWin;
-			}else{
+			} else {
 				var pos:uint = _winArr.length;
 				var newMsgWin:MessageWindow = new MessageWindow(config.clone());
+				newMsgWin.styleSheet = _temple.styleSheet;
 				_winArr.push(newMsgWin);
 				_winArr[pos].addEventListener(MessageWindow.TYPING,onTyping,false,0,true);
 				_winArr[pos].addEventListener(SendMsgEvent.SENT,onMsgSend,false,0,true);
@@ -114,24 +123,23 @@
 			}
 		}
 		
-		private function onTyping(e:Event):void{
+		private function onTyping(e:Event):void {
 			dispatchEvent(new MsgWinManagerEvent(MsgWinManagerEvent.TYPING,e.target.config.guest.uid.clone()));
 		}
 		
 		//dispatch a event when the SEND button pressed
-		private function onMsgSend(e:SendMsgEvent):void{
-			var ee:MsgWinManagerEvent = new MsgWinManagerEvent(MsgWinManagerEvent.MSG,e.config.guest.uid.clone(),e.msg,MessagePacket.TYPE_CHAT);
+		private function onMsgSend(e:SendMsgEvent):void {
+			var ee:MsgWinManagerEvent = new MsgWinManagerEvent(MsgWinManagerEvent.MSG, e.config.guest.uid.clone(), e.msg, MessagePacket.TYPE_CHAT);
 			dispatchEvent(ee);
 			var msg:String = e.msg;
 			msg = msg.replace(/\</g, "&lt;");
 			msg = msg.replace(/\>/g, "&gt;");
-			
-			MessageWindow(e.target).addText("  <b>Me :</b><br />    " + msg);
+						MessageWindow(e.target).addText(addDialog(UserProfile(Env.getInstance().myProfile).nick, msg));
 			MessageWindow(e.target).guestTyping("stopped");
 		}
 		
 		//handle msg window's close order
-		private function closeWinHandler(e:CloseWinEvent):void{
+		private function closeWinHandler(e:CloseWinEvent):void {
 			var winConfig:MsgWindowConfig = e.config;
 			var tmpWin:MessageWindow = searchWin(winConfig);
 			tmpWin.removeEventListener(MessageWindow.TYPING,onTyping);
@@ -144,34 +152,38 @@
 			_winArr.splice(_winArr.indexOf(tmpWin), 1)[0] = null;
 		}
 		
-		private function closeWin(e:Event):void{
+		private function closeWin(e:Event):void {
 			e.preventDefault();
 			
 			var winConfig:MsgWindowConfig = e.target.config;
 			var tmpWin:MessageWindow = searchWin(winConfig);
-			tmpWin.removeEventListener(MessageWindow.TYPING,onTyping);
-			tmpWin.removeEventListener(SendMsgEvent.SENT,onMsgSend);
-			tmpWin.removeEventListener(CloseWinEvent.CLOSE,closeWinHandler);
-			tmpWin.removeEventListener(MinWinEvent.MINISIZE,minWinHandler);
-			tmpWin.removeEventListener(MoveWinEvent.MOVE,moveWinHandler);
-			tmpWin.removeEventListener(Event.CLOSE,closeWin);
+			tmpWin.removeEventListener(MessageWindow.TYPING, onTyping);
+			tmpWin.removeEventListener(SendMsgEvent.SENT, onMsgSend);
+			tmpWin.removeEventListener(CloseWinEvent.CLOSE, closeWinHandler);
+			tmpWin.removeEventListener(MinWinEvent.MINISIZE, minWinHandler);
+			tmpWin.removeEventListener(MoveWinEvent.MOVE, moveWinHandler);
+			tmpWin.removeEventListener(Event.CLOSE, closeWin);
 			tmpWin.dispose();
 			_winArr.splice(_winArr.indexOf(tmpWin), 1)[0] = null;
 		}
 		
 		//handle msg window's minisize order 
-		private function minWinHandler(e:MinWinEvent):void{
+		private function minWinHandler(e:MinWinEvent):void {
 			var winConfig:MsgWindowConfig = e.config;
 			var tmpWin:MessageWindow = searchWin(winConfig);
 			tmpWin.minimize();
 		}
 		
 		//handle msg window's maxsize order
-		private function moveWinHandler(e:MoveWinEvent):void{
+		private function moveWinHandler(e:MoveWinEvent):void {
 			var winConfig:MsgWindowConfig = e.config;
 			var tmpWin:MessageWindow = searchWin(winConfig);
 			tmpWin.startMove();
 		}
+		
+		private function addDialog(header:String, text:String):String {
+			return IDialogTemple(_temple).process(header, text);
+		};
 	}
 }
 class SingletonEnforcer {}
