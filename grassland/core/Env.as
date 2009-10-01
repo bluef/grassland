@@ -130,7 +130,7 @@
 				if (RosterItem(s[i]).group == null || RosterItem(s[i]).group == '') {
 					RosterItem(s[i]).group = "未命名";
 				}
-				trace("ROSTER GROUP FOUND: ", s[i].group);
+				//trace("ROSTER GROUP FOUND: ", s[i].group);
 				
 				var existGroup:RosterGroup = getRosterGroupObjByName(RosterItem(s[i]).group);
 				//var pos:int;
@@ -234,7 +234,7 @@
 		}
 		
 		public function updateRoster(s:RosterItem):void {
-			trace("update roster");
+			//trace("update roster", JID(RosterItem(s).uid.valueOf());
 			var j:int = 0;
 			var found:Boolean = false;
 			var needToUpdate:Boolean = false;
@@ -384,7 +384,7 @@
 		}
 		
 		public function pushPresenceBuffer(packet:PresencePacket):void{
-			trace("presence pushed");
+			//trace("presence pushed");
 			var r:RosterItem;
 			var p:PresencePacket;
 			var l:int = _presenceBuffer.length;

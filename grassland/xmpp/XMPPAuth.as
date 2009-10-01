@@ -18,7 +18,7 @@
 		private var _password:String;
 		
 		//constructor.take over channel to complete auth course
-		public function XMPPAuth(usr:String,pw:String,dp:XMPPDataPaster):void{
+		public function XMPPAuth(usr:String,pw:String,dp:XMPPDataPaster):void {
 			_username = usr;
 			_password = pw;
 			
@@ -29,7 +29,7 @@
 		}
 		
 		//public method to auth
-		public function auth(xmlsanza:XML):void{
+		public function auth(xmlsanza:XML):void {
 			
 			//check if the auth request sanza sent
 			if(!_authSent){
@@ -63,7 +63,7 @@
 		}
 		
 		//hexdigest implementation with ByteArray
-		private function hex2digest(md5:String):ByteArray{
+		private function hex2digest(md5:String):ByteArray {
 			var raw_bytes:String;
 			var char_hex:String;
 			var ba:ByteArray = new ByteArray();
@@ -75,7 +75,7 @@
 		}
 		
 		//caculate the response of the challenge
-		private function challengeMD5(xmlsanza:XML):void{
+		private function challengeMD5(xmlsanza:XML):void {
 			var chadata:String = xmlsanza.toString();
 			var dedata:String = Base64.decode(chadata);
 			var arr:Array = dedata.split(",");
@@ -92,33 +92,33 @@
 			
 			//generate random conce for response
 			var cnonce:String = RandomString.generateRandomString(64);
-			var user_pw_hash:String = MD5.hash(_username+":"+realmS+":"+_password);
+			var user_pw_hash:String = MD5.hash(_username + ":" + realmS + ":" + _password);
 			//only with the help of ByteArray will ha1 get the correct value
 			var ba:ByteArray = hex2digest(user_pw_hash);
-			ba.writeUTFBytes(":"+nonceS+":"+cnonce);
+			ba.writeUTFBytes(":" + nonceS + ":" + cnonce);
 			//use hashBinary to hash a ByteArray
 			var ha1:String = MD5.hashBinary(ba);
-			var ha2:String = MD5.hash("AUTHENTICATE:xmpp/dormforce.net");
+			var ha2:String = MD5.hash("AUTHENTICATE:xmpp/" + _dp.domain);
 			var response:String = MD5.hash(ha1+":"+nonceS+":00000001:"+cnonce+":auth:"+ha2);
-			var responseBody:String = Base64.encode('username="'+_username+'",realm="dormforce.net",nonce="'+nonceS+'",cnonce="'+cnonce+'",nc=00000001,qop=auth,digest-uri="xmpp/dormforce.net",charset=utf-8,response='+response);
+			var responseBody:String = Base64.encode('username="' + _username + '",realm="' + _dp.domain + '",nonce="'+ nonceS + '",cnonce="' + cnonce + '",nc=00000001,qop=auth,digest-uri="xmpp/' + _dp.domain + '",charset=utf-8,response='+response);
 			var resultxml:XML = <response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>;
 			resultxml.appendChild(responseBody);
 			_dp.sendData(resultxml.toXMLString());
 		}
 		
 		//begin a new stream after challenge is accept
-		private function authSuccess(xmlsanza:XML):void{
+		private function authSuccess(xmlsanza:XML):void {
 			var resultxml:String =  "<stream:stream to='dormforce.net' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0' xml:lang='en'>";
 			_dp.sendData(resultxml);
 		}
 		
 		//dispatch a AHTU_FAILURE on auth fail
-		private function authFailure(xmlsanza:XML):void{
+		private function authFailure(xmlsanza:XML):void {
 			dispatchEvent(new Event(AUTH_FAILURE));
 		}
 		
 		//dispatch a AUTH_SUCCESS when a stream sanza received,which indicating the auth flow is complete
-		private function onStream(xmlsanza:XML):void{
+		private function onStream(xmlsanza:XML):void {
 			dispatchEvent(new Event(XMPPAuth.AUTH_SUCCESS));
 		}
 	}

@@ -82,26 +82,10 @@
 			
 			
 			if (addRoster) {
-				trace("contactlist:Add");
+				//trace("contactlist:Add");
 				dispatchEvent(new Event(UPDATED, true));
 			}
 			
-			
-			/*
-			ll = ContactGroup(_groupArr[_groupPos]).itemCount;
-			
-			for (i = 0; i < ll; i++) {
-				ContactGroup(_groupArr[_groupPos]).getItemAt(i).index = i;
-				if(rosterGroup.getRosterItemAt(i).nick != null) {
-					ContactGroup(_groupArr[_groupPos]).getItemAt(i).labelText = rosterGroup.getRosterItemAt(i).nick;
-				} else {
-					ContactGroup(_groupArr[_groupPos]).getItemAt(i).labelText = rosterGroup.getRosterItemAt(i).uid.node;
-				}
-				ContactGroup(_groupArr[_groupPos]).getItemAt(i).show = rosterGroup.getRosterItemAt(i).show;
-				ContactGroup(_groupArr[_groupPos]).getItemAt(i).avatar = rosterGroup.getRosterItemAt(i).avatar;
-				ContactGroup(_groupArr[_groupPos]).getItemAt(i).statusText = rosterGroup.getRosterItemAt(i).status;
-			}
-			*/
 			var tmpRosterItem:RosterItem;
 			
 			var foreachFunc:Function = function (item:ContactListItem, index:int, vector:Vector.<ContactListItem>):void {

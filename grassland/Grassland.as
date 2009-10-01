@@ -163,13 +163,19 @@
 		
 		private function onlogin(e:LoginEvent):void{
 			//init environment
-			if( Env.getInstance().user == null ||e.user != Env.getInstance().user.node){
-				Env.getInstance().loadConfig(e.user,e.password);
+			if(Env.getInstance().user == null || e.user != Env.getInstance().user.node){
+				Env.getInstance().loadConfig(e.user, e.password);
 			}
 			Env.getInstance().remember = e.checked;
 			
 			//init xmpp stream,including loading user profile from Env
-			XMPPStream.getInstance().init(Env.getInstance().user,Env.getInstance().password);
+			if (e.server != '' && e.port != 0) {
+				XMPPStream.getInstance().init(Env.getInstance().user, Env.getInstance().password, e.server, e.port, e.domain, e.resource);
+			} else {
+				XMPPStream.getInstance().init(Env.getInstance().user, Env.getInstance().password);
+			}
+			
+			
 		}
 		
 		private function preparing(e:Event):void{

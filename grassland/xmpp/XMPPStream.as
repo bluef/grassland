@@ -32,29 +32,29 @@
 		private var _sessioned:Boolean;
 				
 		//singleton mode
-		public function XMPPStream (singlentonEnforcer:SingletonEnforcer){
-			//connect to host
-			_dp = new XMPPDataPaster(XMPPConfig.HOST,XMPPConfig.PORT);
-			
+		public function XMPPStream (singlentonEnforcer:SingletonEnforcer) {
 			_authed = false;
 			_binded = false;
 			_rostered = false;
 			_sessioned = false;
 		}
 		
-		public static function getInstance():XMPPStream{
-			if (XMPPStream._instance == null){
+		public static function getInstance():XMPPStream {
+			if (XMPPStream._instance == null) {
 				XMPPStream._instance = new XMPPStream(new SingletonEnforcer());
 			}
 			return XMPPStream._instance;
 		}
 		
 		//init the XMPPStream with username and password provided by Env
-		public function init(user:JID,pw:String):void {
+		public function init(user:JID, pw:String, server:String = XMPPConfig.HOST, port:uint = XMPPConfig.PORT, domain:String = XMPPConfig.DOMAIN, resource:String = XMPPConfig.RESOURCE):void {
+			//connect to host		
+			_dp = new XMPPDataPaster(server, port, domain, resource);
+			
 			_user = user.clone();
 			connect();
 			//and start to authenticate
-			_auth = new XMPPAuth(_user.node,pw,_dp);
+			_auth = new XMPPAuth(_user.node, pw, _dp);
 			
 			configureListeners();
 		}
@@ -105,7 +105,7 @@
 							} else {
 								setOnline("");
 								getRoster();
-								_dp.sendData("<presence type='probe' from='bluef@dormforce.net/NUT2' to='dormforce.net'/>");
+								
 							}
 						}
 					} else {
@@ -222,13 +222,13 @@
 		//bind the resource after auth
 		private function bindResource():void {
 			var packet:IQPacket = new IQPacket();
-			packet.to = new JID("dormforce.net");
+			packet.to = new JID(_dp.domain);
 			packet.ptype = IQPacket.TYPE_SET;
 			var xmlns:Object = new Object();
 			xmlns.tag = "xmlns";
 			xmlns.value = IQPacket.BIND_RESOURCE;
-			packet.addXMLChild("","bind",'',xmlns);
-			packet.addXMLChild("bind","resource","Grassland");
+			packet.addXMLChild("", "bind", '', xmlns);
+			packet.addXMLChild("bind", "resource", _dp.resource);
 			sendData(packet.toXMLString());
 			_binded = true;
 		}
@@ -237,11 +237,11 @@
 		private function setSession():void {
 			var p:IQPacket = new IQPacket();
 			p.ptype = IQPacket.TYPE_SET;
-			p.to = new JID("dormforce.net");
+			p.to = new JID(_dp.domain);
 			var xn:Object = new Object();
 			xn.tag = "xmlns";
 			xn.value = "urn:ietf:params:xml:ns:xmpp-session";
-			p.addXMLChild("","session","",xn);
+			p.addXMLChild("", "session", "", xn);
 			sendData(p.toXMLString());
 			_sessioned = true;
 		}
@@ -249,7 +249,7 @@
 		//get roster
 		public function getRoster():void {
 			var packet:IQPacket = new IQPacket();
-			packet.to = new JID("dormforce.net");
+			packet.to = new JID(_dp.domain);
 			packet.ptype = IQPacket.TYPE_GET;
 			var xmlns:Object = new Object();
 			xmlns.tag = "xmlns";
@@ -257,11 +257,13 @@
 			packet.addXMLChild("","query",'',xmlns);
 			sendData(packet.toXMLString());
 			_rostered = true;
+			
+			sendData("<presence type='probe' from='" + JID(_user).node + "@" + _dp.domain + "/" + _dp.resource + "' to='" + _dp.domain + "'/>");
 		}
 		
 		public function tellBroatcast():void {
 			var packet:IQPacket = new IQPacket();
-			packet.to = new JID("dormforce.net");
+			packet.to = new JID(_dp.domain);
 			packet.ptype = IQPacket.TYPE_GET;
 			var xmlns:Object = new Object();
 			xmlns.tag = "xmlns";

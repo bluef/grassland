@@ -110,10 +110,10 @@
 			
 			
 			//addMenuItem("隐藏离线好友", "HideOfflineContactCommand");
-			addMenuItem("关于", new ShowUtilCommand(UtilWindowType.ABOUT));
+			addMenuItem("关于Grassland", new ShowUtilCommand(UtilWindowType.ABOUT));
 			addMenuItem("Debug", new ShowUtilCommand(UtilWindowType.DEBUG));
 			addMenuItem("", null, true);
-			addMenuItem("退出Grassland", new ExitAppCommand());
+			addMenuItem("退出", new ExitAppCommand());
 			
 			_mainMenuBtn = new MainMenuBtn();
 			_mainMenuBtn.x = 10;
@@ -193,7 +193,7 @@
 				_mainMenu.addItem(new NativeMenuItem('', true));
 			} else {
 				var item:NativeMenuItem = _mainMenu.addItem(new NativeMenuItem(label));
-				trace("ADD MENUITEM: grassland.core.commands." + cmd);
+				//trace("ADD MENUITEM: grassland.core.commands." + cmd);
 				
 				var o:Object = new Object();
 				o.command = cmd;

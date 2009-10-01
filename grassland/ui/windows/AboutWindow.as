@@ -32,10 +32,10 @@ package grassland.ui.windows {
 			_msg = new LabelText("", 290);
 			_msg.appendText("Grassland " + Version.VERSION +"\n");
 			_msg.appendText("          " + XML(NativeApplication.nativeApplication.applicationDescriptor).version.toString() +"\n");
-			_msg.appendText("Author: Terrence Lee\n");
+			_msg.appendText("Copyright (C) 2008-2009, Terrence Lee\n");
 			_msg.appendText("Runtime Version: " + NativeApplication.nativeApplication.runtimeVersion + "\n");
 			_msg.appendText("OS: " + Capabilities.os + "\n");
-			_msg.appendText("Memory: " + System.totalMemory / 1024+ " KB");
+			_msg.appendText("Memory: " + System.totalMemory / 1024 + " KB");
 			_msg.x = 90;
 			_msg.y = 12;
 			_panel.addChild(_msg);

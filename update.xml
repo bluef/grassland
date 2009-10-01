@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <update xmlns="http://ns.adobe.com/air/framework/update/description/1.0"> 
-<version>build 2009/10/01</version> 
+<version>build 2009/10/02</version> 
 <url>http://202.115.22.207/grassland/Grassland.air</url> 
 <description>This is the latest version of Grassland.</description> 
 </update> 
