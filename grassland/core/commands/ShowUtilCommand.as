@@ -15,7 +15,7 @@ package grassland.core.commands {
 		
 		private function init():void {
 			_command = function() {
-				UtilWindowManager.getInstance().newWindow(type);
+				UtilWindowManager.getInstance().newWindow(_type);
 			}
 		}
 		

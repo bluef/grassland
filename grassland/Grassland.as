@@ -100,6 +100,8 @@
 			XMPPStream.getInstance().addEventListener(XMPPStream.AUTH_SUCCESS,preparing);
 			XMPPStream.getInstance().addEventListener(XMPPStream.AUTH_FAILURE,onAuthFailed);
 			XMPPStream.getInstance().addEventListener(MessageEvent.RECEIVED,onMessage);
+			XMPPStream.getInstance().addEventListener(XMPPEvent.RAW,onRawXMPP);
+			
 			XMPPStream.getInstance().addEventListener(TypingEvent.TYPING,onTyping);
 			XMPPStream.getInstance().addEventListener(TypingEvent.PAUSED,onTyping);
 			XMPPStream.getInstance().addEventListener(IQEvent.RECEIVED,onIQ);
@@ -113,6 +115,7 @@
 			NotifyManager.getInstance().addEventListener(NotifyManagerEvent.CLICK,onNotifyClicked);
 			MsgWindowManager.getInstance().addEventListener(MsgWinManagerEvent.MSG,sendMsg);
 			MsgWindowManager.getInstance().addEventListener(MsgWinManagerEvent.TYPING,isTyping);
+			UtilWindowManager.getInstance().addEventListener(UtilWinMgrEvent.DEBUG_RAW_INPUT, onDebugRawInput);
 			NativeApplication.nativeApplication.addEventListener(Event.USER_IDLE, onUserIdle);
 			NativeApplication.nativeApplication.addEventListener(Event.USER_PRESENT,onUserPresence);
 		}
@@ -178,10 +181,10 @@
 			_mainWindow.x = Screen.mainScreen.visibleBounds.width*0.15;
 			_mainWindow.y = Screen.mainScreen.visibleBounds.height*0.15;
 			
-			_mainWindow.addEventListener(ContactListEvent.ITEM_CLICKED,openNewMsgWin);
+			_mainWindow.addEventListener(ContactListEvent.ITEM_CLICKED, openNewMsgWin);
 			_mainWindow.addEventListener(ChangeStateEvent.CHANGED,onStateChanged);
-			_mainWindow.addEventListener(Event.CLOSE,onMainWinClose);
-			_mainWindow.addEventListener(MainWindow.PROFILE_INITED,onProfileBlockInited)			
+			_mainWindow.addEventListener(Event.CLOSE, onMainWinClose);
+			_mainWindow.addEventListener(MainWindow.PROFILE_INITED, onProfileBlockInited)			
 			XMPPStream.getInstance().goOn();
 			
 		}
@@ -239,6 +242,14 @@
 			}
 			_mainWindow.updateState(Env.getInstance().myProfile.show,Env.getInstance().myProfile.status);
 		}
+		
+		private function onRawXMPP(e:XMPPEvent):void {
+			UtilWindowManager.getInstance().forwardData(e.type, e.data);
+		};
+		
+		private function onDebugRawInput(e:UtilWinMgrEvent):void {
+			XMPPStream.getInstance().sendData(String(e.data));
+		};
 		
 		//handle msg received
 		private function onMessage(e:MessageEvent):void{
@@ -384,8 +395,9 @@
 		}
 		
 		private function onMainWinClose(e:Event):void{
-			trace("close");
-			NativeApplication.nativeApplication.exit();
+			trace("CLOSE MAIN WINDOW");
+			//_mainWindow.stage.nativeWindow.minimize();
+			//NativeApplication.nativeApplication.exit();
 		}
 		
 		private function onProfileBlockInited(e:Event):void{

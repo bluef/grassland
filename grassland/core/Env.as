@@ -1,10 +1,12 @@
 ﻿package grassland.core {
 	import flash.events.EventDispatcher;
 	import flash.events.Event;
+	import flash.events.IOErrorEvent;
 	import flash.net.URLRequest;
 	import flash.display.Loader;
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	
 	import grassland.core.Setting;
 	import grassland.core.events.RosterUpdateEvent;
 	import grassland.core.interfaces.ISorter;
@@ -283,6 +285,7 @@
 			var r:URLRequest = new URLRequest("http://www2.dormforce.net/talk/avatar.php?uid="+u);
 			var l:Loader = new Loader();
 			l.contentLoaderInfo.addEventListener(Event.COMPLETE, onAvatarLoaded);
+			l.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR , onAvatarIOError);
 			l.load(r);
 		}
 		
@@ -293,6 +296,12 @@
 			//trace("b=",getRosterItemByNode(u).avatar.getPixel(10,10));
 			//getRosterItemByNode(u).avatar.addChild(e.target.content);
 		}
+		
+		private function onAvatarIOError(e:IOErrorEvent):void {
+			trace("ERROR LOADING AVATER");
+			EventDispatcher(e.target).removeEventListener(Event.COMPLETE, onAvatarLoaded);
+			EventDispatcher(e.target).removeEventListener(IOErrorEvent.IO_ERROR , onAvatarIOError);
+		};
 		
 		public function updateAvatar(ss:String, bmp:BitmapData):void {
 			var s:JID = new JID(ss + "@dormforce.net");

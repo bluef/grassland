@@ -1,62 +1,89 @@
 ﻿package grassland.ui.managers {
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.utils.getQualifiedClassName;
+	import flash.utils.Dictionary;
 	import grassland.ui.windows.AboutWindow;
+	import grassland.ui.windows.DebugWindow;
 	import grassland.ui.base.BasicWindow;
+	import grassland.ui.events.UtilWindowType;
+	import grassland.ui.events.UtilWinMgrEvent;
+	import grassland.ui.events.UtilWinEvent;
+	
+	import grassland.ui.interfaces.IUtilWindow;
+	
+	import grassland.xmpp.events.XMPPEvent;
+	
 	
 	public class UtilWindowManager extends EventDispatcher {
-		public static const ABOUT:String = "grassland.ui.windows::AboutWindow";
+		
 		private static var _instance:UtilWindowManager;
-		private var _winArr:Array;
+		
+		private var _winArr:Dictionary;
+		
+		private var _debug:Boolean = false;
 		
 		public function UtilWindowManager(singlentonEnforcer:SingletonEnforcer) {
-			_windows = [];
+			_winArr = new Dictionary();
 		}
 		
 		public static function getInstance():UtilWindowManager {
-			if(UtilWindowManager._instance == null){
+			if (UtilWindowManager._instance == null) {
 				UtilWindowManager._instance = new UtilWindowManager(new SingletonEnforcer());
 			}
 			return UtilWindowManager._instance;
 		}
 		
-		private function searchWin(type:String):void {
-			var l:uint = _winArr.length;
-			for(var i:uint = 0;i<l;i++){
-				if(getQualifiedClassName(_winArr[i]) == type){
-					return i;
-				}
+		public function forwardData(type:String, data:Object):void {
+			switch (type) {
+				case XMPPEvent.RAW :
+					if (_debug && _winArr[UtilWindowType.DEBUG] != null) {
+						_winArr[UtilWindowType.DEBUG].log(String(data));
+					}
+					break;
 			}
-			return -1;
-		}
+		};
 		
 		public function newWindow(type:String):void {
-			var pos:int = searchWin(type);
-			if (pos != -1) {
-				_winArr[pos].activate();
-			}else{
+			if (_winArr[type] != null) {
+				BasicWindow(_winArr[type]).activate();
+			} else {
 				var win:BasicWindow;
 				switch (type) {
-					case ABOUT :
+					case UtilWindowType.ABOUT :
 						win = new AboutWindow();
-						_winArr.push(win);
-						_winArr[_winArr.length - 1].addEventListener(Event.CLOSING, onWinClosing);
-						_winArr[_winArr.length - 1].activate();
+						_debug = true;
+						break;
+						
+					case UtilWindowType.DEBUG :
+						win = new DebugWindow();
 						break;
 				}
+				
+				_winArr[type] = win;
+				win.addEventListener(Event.CLOSING, onWinClosing);
+				win.addEventListener(UtilWinEvent.DATA, onWinData);
+				win.activate();
 			}
 		}
 		
 		private function onWinClosing(e:Event):void {
 			e.preventDefault();
 			
-			var pos:int = searchWin(getQualifiedClassName(e.target));
-			if (pos != -1) {
-				_winArr[pos].removeEventListener(Event.CLOSING, onWinClose);
-				_winArr.splice(pos,1)[0].close();
+			if (_winArr[IUtilWindow(e.target).id] != null) {
+				_winArr[IUtilWindow(e.target).id].removeEventListener(Event.CLOSING, onWinClosing);
+				_winArr[IUtilWindow(e.target).id].removeEventListener(UtilWinEvent.DATA, onWinData);
+				BasicWindow(_winArr[IUtilWindow(e.target).id]).close();
+				delete _winArr[IUtilWindow(e.target).id];
 			}
 		}
+		
+		private function onWinData(e:UtilWinEvent):void {
+			switch ( e.data.type ) {
+				case 'debug_raw_input' :
+					dispatchEvent(new UtilWinMgrEvent(UtilWinMgrEvent.DEBUG_RAW_INPUT, e.data.data)); //RAW_INPUT_DATA
+					break;
+			}
+		};
 	}
 }
 class SingletonEnforcer {}

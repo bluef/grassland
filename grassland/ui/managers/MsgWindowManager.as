@@ -42,10 +42,8 @@
 			//msg = msg.replace(/\n/g, "<br />");
 			var r:RosterItem = Env.getInstance().getRosterItemByJID(packet.from);
 			if (r.nick == null || r.nick == '') {
-				//tmpWin.addText("  <b>" + packet.from.node + " :</b><br />    " + msg);
 				tmpWin.addText(addDialog(JID(packet.from).toString(), msg));
 			} else {
-				//tmpWin.addText("  <b>" + r.nick + " :</b><br />    " + msg);
 				tmpWin.addText(addDialog(r.nick, msg));
 			}
 			tmpWin.guestTyping("stopped");
@@ -100,7 +98,7 @@
 				_winArr[pos].addEventListener(MinWinEvent.MINISIZE,minWinHandler,false,0,true);
 				_winArr[pos].addEventListener(MoveWinEvent.MOVE,moveWinHandler,false,0,true);
 				_winArr[pos].addEventListener(Event.CLOSING,closeWin,false,0,true);
-				_winArr[pos].updateProfile(config.guest.nick,config.guest.show,config.guest.status,config.guest.avatar);
+				_winArr[pos].updateProfile(config.guest.nick, config.guest.show, config.guest.status, config.guest.avatar);
 				_winArr[pos].activate();
 				_winArr[pos].notifyUser(NotificationType.CRITICAL);
 				return _winArr[pos];
@@ -134,7 +132,7 @@
 			var msg:String = e.msg;
 			msg = msg.replace(/\</g, "&lt;");
 			msg = msg.replace(/\>/g, "&gt;");
-						MessageWindow(e.target).addText(addDialog(UserProfile(Env.getInstance().myProfile).nick, msg));
+			MessageWindow(e.target).addText(addDialog(UserProfile(Env.getInstance().myProfile).nick, msg));
 			MessageWindow(e.target).guestTyping("stopped");
 		}
 		

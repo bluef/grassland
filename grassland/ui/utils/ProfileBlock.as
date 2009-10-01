@@ -69,7 +69,10 @@
 		}
 		
 		public function disposeAvatar():void {
-			BitmapData(_avatar.bitmapData).dispose();
+			if (_avatar.bitmapData != null) {
+				BitmapData(_avatar.bitmapData).dispose();
+			}
+			
 		}
 	}
 }

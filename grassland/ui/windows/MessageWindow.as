@@ -84,9 +84,7 @@
 			_inputArea.width = width - 2;
 			_inputArea.x = 0;
 			_inputArea.y = height - 155;
-			_inputArea.addEventListener(KeyboardEvent.KEY_DOWN, onEnter);
-			_inputArea.addEventListener(Event.CHANGE, onTyping);
-
+			
 			_panel.addChild(_inputArea);
 			stage.focus = _inputArea;
 			
@@ -96,30 +94,17 @@
 			_scrollBar.y = 0;
 			_scrollBar.height = height - 155;
 			_scrollBar.pageScrollSize = 5;
-			_scrollBar.addEventListener(ScrollEvent.SCROLL, onScroll);
+			
 			_panel.addChild(_scrollBar);
 			
 			configureListener();
 		}
 		
-		private function drawBackground():void {
-			var bg:Sprite = new Sprite();
-			with (bg.graphics) {
-				lineStyle(1);
-				beginFill(0x000000);
-					drawRoundRect(0, 0, 480, 500, 5, 5);
-				endFill();
-			}
-			_panel.addChildAt(bg,  0);
-		}
-		
 		private function configureListener():void {
-			//_sendBtn.addEventListener(MouseEvent.CLICK, sendMsg);
-			//_closeBtn.addEventListener(MouseEvent.CLICK, closeWin);
-			//_minBtn.addEventListener(MouseEvent.CLICK, minWin);
-			//_bar.addEventListener(MouseEvent.MOUSE_DOWN, moveWin);
+			_inputArea.addEventListener(KeyboardEvent.KEY_DOWN, onEnter);
+			_inputArea.addEventListener(Event.CHANGE, onTyping);
+			_scrollBar.addEventListener(ScrollEvent.SCROLL, onScroll);
 			this.addEventListener(NativeWindowBoundsEvent.RESIZING,  onResizeWin);
-			
 		}
 		
 		private function onEnter(e:KeyboardEvent):void {

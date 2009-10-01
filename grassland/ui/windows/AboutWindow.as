@@ -9,9 +9,12 @@ package grassland.ui.windows {
 	import grassland.ui.base.BasicWindow;
 	import grassland.ui.utils.LabelText;
 	
-	public class AboutWindow extends BasicWindow{
+	import grassland.ui.interfaces.IUtilWindow;
+	
+	public class AboutWindow extends BasicWindow implements IUtilWindow {
 		private var _logo:Loader;
 		private var _msg:LabelText;
+		private var _id:String = "grassland.ui.windows::AboutWindow";
 		public function AboutWindow():void {
 			super(380, 220, false);
 			title = "About Grassland";
@@ -37,5 +40,9 @@ package grassland.ui.windows {
 			_msg.y = 12;
 			_panel.addChild(_msg);
 		}
+		
+		public function get id():String {
+			return _id;
+		};
 	}
 }

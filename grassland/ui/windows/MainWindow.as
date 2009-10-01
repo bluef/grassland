@@ -18,7 +18,10 @@
 	
 	import grassland.core.interfaces.ICommand;
 	import grassland.core.roster.RosterGroup;
-	import grassland.core.commands.*;
+	
+	import grassland.core.commands.ExitAppCommand;
+	import grassland.core.commands.ShowUtilCommand;
+	
 	import grassland.ui.base.BasicWindow;
 	import grassland.ui.events.ContactListEvent;
 	import grassland.ui.events.ChangeStateEvent;
@@ -29,6 +32,8 @@
 	import grassland.ui.utils.MainMenuBtn;
 	import grassland.ui.utils.InputField;
 	import grassland.ui.utils.ScrollBar;
+	
+	import grassland.ui.events.UtilWindowType;
 	
 	public class MainWindow extends BasicWindow {
 		public static const PROFILE_INITED:String = "profile_inited";
@@ -101,10 +106,14 @@
 			stage.addEventListener(MouseEvent.MOUSE_WHEEL, onMWheel);
 			
 			_mainMenu = new NativeMenu();
-
-			addMenuItem("退出Grassland", "ExitAppCommand");
-			addMenuItem("隐藏离线好友", "HideOfflineContactCommand");
-			addMenuItem("关于", "ShowAboutCommand");
+			
+			
+			
+			//addMenuItem("隐藏离线好友", "HideOfflineContactCommand");
+			addMenuItem("关于", new ShowUtilCommand(UtilWindowType.ABOUT));
+			addMenuItem("Debug", new ShowUtilCommand(UtilWindowType.DEBUG));
+			addMenuItem("", null, true);
+			addMenuItem("退出Grassland", new ExitAppCommand());
 			
 			_mainMenuBtn = new MainMenuBtn();
 			_mainMenuBtn.x = 10;
@@ -179,20 +188,23 @@
 			_mainMenu.display(stage, _panel.localToGlobal(p).x + 2, _panel.localToGlobal(p).y + 10)
 		}
 		
-		private function addMenuItem(label:String, cmd:String):void {
-			var item:NativeMenuItem = _mainMenu.addItem(new NativeMenuItem(label));
-			trace("ADD MENUITEM: grassland.core.commands." + cmd);
-			/*
-			var cmdClass:Class = getDefinitionByName("grassland.core.commands." + cmd) as Class;
-			var o:Object = new Object();
-			o.command = new cmdClass();
-			o.arg = label;
-			item.data = o;
-			item.addEventListener(Event.SELECT, onItemSelected);
-			*/
+		private function addMenuItem(label:String, cmd:ICommand, isSeparator:Boolean = false):void {
+			if (isSeparator) {
+				_mainMenu.addItem(new NativeMenuItem('', true));
+			} else {
+				var item:NativeMenuItem = _mainMenu.addItem(new NativeMenuItem(label));
+				trace("ADD MENUITEM: grassland.core.commands." + cmd);
+				
+				var o:Object = new Object();
+				o.command = cmd;
+				o.arg = label;
+				item.data = o;
+				item.addEventListener(Event.SELECT, onItemSelected);
+			}
 		}
 		
 		private function onItemSelected(e:Event):void {
+			trace("MENU SELECT", e.target.label)
 			var cmd:ICommand = NativeMenuItem(e.target).data.command;
 			cmd.setArgs(NativeMenuItem(e.target).data.arg);
 			cmd.exec();
@@ -218,5 +230,9 @@
 			_scrollBar.x = Rectangle(e.afterBounds).width - 14;
 			_scrollBar.resize(0, Rectangle(e.afterBounds).height - 115);
 		}
+		
+		override protected function closeWin(e:MouseEvent):void {
+			this.stage.nativeWindow.minimize();
+		};
 	}
 }

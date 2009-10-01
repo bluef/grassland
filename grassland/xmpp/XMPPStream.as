@@ -43,14 +43,14 @@
 		}
 		
 		public static function getInstance():XMPPStream{
-			if(XMPPStream._instance == null){
+			if (XMPPStream._instance == null){
 				XMPPStream._instance = new XMPPStream(new SingletonEnforcer());
 			}
 			return XMPPStream._instance;
 		}
 		
 		//init the XMPPStream with username and password provided by Env
-		public function init(user:JID,pw:String):void{
+		public function init(user:JID,pw:String):void {
 			_user = user.clone();
 			connect();
 			//and start to authenticate
@@ -60,67 +60,67 @@
 		}
 		
 		//public method to connect to host
-		public function connect():void{
+		public function connect():void {
 			_dp.connect();
 		}
 		
 		
 		//disconnect from host after send a end-xmlstream sanza
-		public function disconnect():void{
+		public function disconnect():void {
 			_dp.disconnect();
 		}
 		
 		//configure event listener of all the sub modules
-		private function configureListeners():void{
+		private function configureListeners():void {
 			
-			_dp.addEventListener(DataEvent.DATA,onData);
-			_dp.addEventListener(ChannelStateEvent.CONNECT,onChannelState);
-			_dp.addEventListener(ChannelStateEvent.DISCONNECT,onChannelState);
+			_dp.addEventListener(DataEvent.DATA, onData);
+			_dp.addEventListener(ChannelStateEvent.CONNECT, onChannelState);
+			_dp.addEventListener(ChannelStateEvent.DISCONNECT, onChannelState);
 			//handle auth result
-			_auth.addEventListener(XMPPAuth.AUTH_SUCCESS,onAuthSuc);
-			_auth.addEventListener(XMPPAuth.AUTH_FAILURE,onAuthFail);
+			_auth.addEventListener(XMPPAuth.AUTH_SUCCESS, onAuthSuc);
+			_auth.addEventListener(XMPPAuth.AUTH_FAILURE, onAuthFail);
 		}
 		
 		//start a new stream by sending begin-xmlstream sanza
-		private function onChannelState(e:Event):void{
+		private function onChannelState(e:Event):void {
 			dispatchEvent(new Event(e.type,true));
 		}
 		
-		private function onData(ee:DataEvent):void{
+		private function onData(ee:DataEvent):void {
 			var s:XML;
 			try{
 				s = new XML(ee.data);
-				if(!_authed){
+				if (!_authed){
 				//start auth
 				//trace("going to auth");
 					_auth.auth(s);
 				}else{
 				//trace("authed");
-					if(_binded){
-						if(!_sessioned){
+					if (_binded) {
+						if (!_sessioned){
 							setSession();
-						}else{
-							if(_rostered){
+						} else {
+							if (_rostered) {
 								filterPacket(s);
-							}else{
+							} else {
 								setOnline("");
 								getRoster();
 								_dp.sendData("<presence type='probe' from='bluef@dormforce.net/NUT2' to='dormforce.net'/>");
 							}
 						}
-					}else{
+					} else {
 						bindResource();
 					}
 				}
-			}catch(e){
-				trace("[ERROR]>>",e);
-				trace("[ERROR-SANZA]>>",ee.data);
+			} catch(e) {
+				trace("[ERROR]>>", e);
+				trace("[ERROR-SANZA]>>", ee.data);
 			}
 			//trace("e.data =",e.data.toXMLString());
-			/*if(e.data.elements("*")[0].name().uri === "urn:ietf:params:xml:ns:xmpp-bind"){
+			/*if (e.data.elements("*")[0].name().uri === "urn:ietf:params:xml:ns:xmpp-bind"){
 				_binded = true;
 			}
-			if(e.data.elements("*")[0].name().uri === "jabber:iq:roster"){
+			if (e.data.elements("*")[0].name().uri === "jabber:iq:roster"){
 				_rostered = true;
 			}
 			*/
@@ -128,45 +128,55 @@
 		}
 		
 		//set auth state
-		private function onAuthSuc(e:Event):void{
+		private function onAuthSuc(e:Event):void {
 			_authed = true;
 			dispatchEvent(new Event(AUTH_SUCCESS,true));
 		}
 		
-		private function onAuthFail(e:Event):void{
+		private function onAuthFail(e:Event):void {
 			_authed = false;
 			dispatchEvent(new Event(AUTH_FAILURE,true));
 		}
 		
-		public function goOn():void{
+		public function goOn():void {
 			bindResource();			
 		}
 		
+		public function sendData(sanza:String):void {
+			dispatchEvent(new XMPPEvent(XMPPEvent.RAW, sanza));
+			
+			_dp.sendData(sanza);
+		};
+		
 		//create diffrent sub-class packet by check xmlsanza's localname 
-		private function filterPacket(xmlsanza:XML):void{
+		private function filterPacket(xmlsanza:XML):void {
+			//dispatch the raw data of incoming sanza
+			dispatchEvent(new XMPPEvent(XMPPEvent.RAW, xmlsanza.toXMLString()));
 			
 			switch(xmlsanza.name().localName){
 				case "message":
-					if(xmlsanza.hasOwnProperty("body") && xmlsanza.child("body").toXMLString() != ''){
+					if (xmlsanza.hasOwnProperty("body") && xmlsanza.child("body").toXMLString() != ''){
 						var packet:MessagePacket = new MessagePacket();
 						packet.loadXML(xmlsanza);
 						var e:MessageEvent = new MessageEvent(packet);
 						dispatchEvent(e);
-					}else if(xmlsanza.CHAT_NS::composing.toXMLString() != ''){
+					} else if (xmlsanza.CHAT_NS::composing.toXMLString() != ''){
 						//trace(xmlsanza.@from.toString());
 						var tte:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()),TypingEvent.TYPING);
 						dispatchEvent(tte);
-					}else if(xmlsanza.CHAT_NS::paused.toXMLString() != ''){
+					} else if (xmlsanza.CHAT_NS::paused.toXMLString() != ''){
 						var tpe:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()),TypingEvent.PAUSED);
 						dispatchEvent(tpe);
 					}
 					break;
+					
 				case "presence":
 					var ppacket:PresencePacket = new PresencePacket();
 					ppacket.loadXML(xmlsanza);
 					var pe:PresenceEvent = new PresenceEvent(ppacket);
 					dispatchEvent(pe);
 					break;
+					
 				case "iq":
 					//trace("IQ");
 					var ipacket:IQPacket = new IQPacket();
@@ -179,17 +189,17 @@
 		}
 		
 		//public method for creating a new msg packet
-		public function newMessage(pto:JID,pbody:String):void{
+		public function newMessage(pto:JID,pbody:String):void {
 			var packet:MessagePacket = new MessagePacket();
 			packet.to = pto;
 			packet.from = _user;
 			packet.body = pbody;
 			packet.type = MessagePacket.TYPE_CHAT;
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
 		//base method to set current state
-		public function newPresence(pshow:String,pstatus:String,ptype:String,pto:JID = null,ppriority:int=8):void{
+		public function newPresence(pshow:String,pstatus:String,ptype:String,pto:JID = null,ppriority:int=8):void {
 			var packet:PresencePacket = new PresencePacket();
 			packet.to = pto;
 			packet.from = _user;
@@ -197,20 +207,20 @@
 			packet.status = pstatus;
 			packet.type = ptype;
 			packet.priority = ppriority;
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
 		//base method to create a new IQ packet
-		public function newIQ(ptype:String,paction:String,pto:JID):void{
+		public function newIQ(ptype:String,paction:String,pto:JID):void {
 			var packet:IQPacket = new IQPacket();
 			packet.to = pto;
 			packet.from = _user;
 			packet.ptype = ptype;
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
 		//bind the resource after auth
-		private function bindResource():void{
+		private function bindResource():void {
 			var packet:IQPacket = new IQPacket();
 			packet.to = new JID("dormforce.net");
 			packet.ptype = IQPacket.TYPE_SET;
@@ -219,12 +229,12 @@
 			xmlns.value = IQPacket.BIND_RESOURCE;
 			packet.addXMLChild("","bind",'',xmlns);
 			packet.addXMLChild("bind","resource","Grassland");
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 			_binded = true;
 		}
 		
 		//set session
-		private function setSession():void{
+		private function setSession():void {
 			var p:IQPacket = new IQPacket();
 			p.ptype = IQPacket.TYPE_SET;
 			p.to = new JID("dormforce.net");
@@ -232,12 +242,12 @@
 			xn.tag = "xmlns";
 			xn.value = "urn:ietf:params:xml:ns:xmpp-session";
 			p.addXMLChild("","session","",xn);
-			_dp.sendData(p.toXMLString());
+			sendData(p.toXMLString());
 			_sessioned = true;
 		}
 		
 		//get roster
-		public function getRoster():void{
+		public function getRoster():void {
 			var packet:IQPacket = new IQPacket();
 			packet.to = new JID("dormforce.net");
 			packet.ptype = IQPacket.TYPE_GET;
@@ -245,11 +255,11 @@
 			xmlns.tag = "xmlns";
 			xmlns.value = IQPacket.QUERY_ROSTER;
 			packet.addXMLChild("","query",'',xmlns);
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 			_rostered = true;
 		}
 		
-		public function tellBroatcast():void{
+		public function tellBroatcast():void {
 			var packet:IQPacket = new IQPacket();
 			packet.to = new JID("dormforce.net");
 			packet.ptype = IQPacket.TYPE_GET;
@@ -257,46 +267,46 @@
 			xmlns.tag = "xmlns";
 			xmlns.value = "http://jabber.org/protocol/disco#info";
 			packet.addXMLChild("","query",'',xmlns);
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
-		public function setOnline(pstatus:String):void{
+		public function setOnline(pstatus:String):void {
 			var packet:PresencePacket = new PresencePacket();
 			packet.status = pstatus;
 			packet.priority = 10;
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
-		public function setAway(pstatus:String):void{
+		public function setAway(pstatus:String):void {
 			var packet:PresencePacket = new PresencePacket();
 			packet.show = PresencePacket.SHOW_AWAY;
 			packet.status = pstatus;
 			packet.priority = 10;
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
-		public function setXa(pstatus:String):void{
+		public function setXa(pstatus:String):void {
 			var packet:PresencePacket = new PresencePacket();
 			packet.show = PresencePacket.SHOW_XA;
 			packet.status = pstatus;
 			packet.priority = 10;
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
-		public function setBusy(pstatus:String):void{
+		public function setBusy(pstatus:String):void {
 			var packet:PresencePacket = new PresencePacket();
 			packet.show = PresencePacket.SHOW_DND;
 			packet.status = pstatus;
 			packet.priority = 10;
-			_dp.sendData(packet.toXMLString());
+			sendData(packet.toXMLString());
 		}
 		
-		public function setOffline():void{
+		public function setOffline():void {
 			disconnect();
 		}
 		
-		public function typingTo(s:JID):void{
-			_dp.sendData("<message from='"+_user.valueOf()+"' to='"+s.valueOf()+"' type='chat'><composing xmlns='http://jabber.org/protocol/chatstates'/></message>");
+		public function typingTo(s:JID):void {
+			sendData("<message from='"+_user.valueOf()+"' to='"+s.valueOf()+"' type='chat'><composing xmlns='http://jabber.org/protocol/chatstates'/></message>");
 		}
 	}
 }

@@ -21,11 +21,11 @@
 		private var _o:Array;
 		private var _expireTagSearch:int = 0;
 		
-		public function XMPPChannel(host:String,pport:uint):void{
+		public function XMPPChannel(host:String,pport:uint):void {
 			init(host,pport);
 		}
 		
-		private function init(host:String,pport:uint):void{
+		private function init(host:String,pport:uint):void {
 			_host = host;
 			_port = pport;
 			_socket = new Socket();
@@ -39,47 +39,47 @@
 			_timer.addEventListener(TimerEvent.TIMER,onTimer);
 		}
 		
-		private function onTimer(e:TimerEvent):void{
+		private function onTimer(e:TimerEvent):void {
 			trace("send empty packet");
 			sendData("  ");
 		}
 		
-		public function connect():void{
+		public function connect():void {
 			_socket.connect(_host,_port);
 		}
 		
 		//send data
-		public function sendData(s:String):void{
+		public function sendData(s:String):void {
 			//trace("SENT>>",s,"\n");
 			//_timer.reset();
 			_socket.writeUTFBytes(s);
 			_socket.flush();
 		}
 		
-		private function onConnect(e:Event):void{
+		private function onConnect(e:Event):void {
 			//trace("channel conected");
 			_timer.start();
 			dispatchEvent(new ChannelStateEvent(ChannelStateEvent.CONNECT));
 		}
 		
-		private function onDisconnect(e:Event):void{
+		private function onDisconnect(e:Event):void {
 			dispatchEvent(new ChannelStateEvent(ChannelStateEvent.DISCONNECT));
 		}
 		
-		public function disconnect():void{
+		public function disconnect():void {
 			_socket.close();
 		}
 		
 		//when new data is available
-		private function onRead(e:ProgressEvent):void{
+		private function onRead(e:ProgressEvent):void {
 			_rawXML = _socket.readUTFBytes(_socket.bytesAvailable);
 			//trace("[RECEIVED]>>",s,"\n");
 			
 			//trace("rawXML =",rawXML,"\n");
-			//if(_expireTagSearch < 3){
+			//if(_expireTagSearch < 3) {
 				_pattern = /\<\?xml/i;
 				_o = _pattern.exec(_rawXML);
-				if (_o != null){
+				if (_o != null) {
 					trace("found");
 					_rawXML = _rawXML.substring(38);
 					_expireTagSearch++;
@@ -88,7 +88,7 @@
 				
 				_pattern = /\<stream:stream/i;
 				_o = _pattern.exec(_rawXML);
-				if (_o != null){
+				if (_o != null) {
 					//trace(resultObj2[0]);
 					_rawXML = _rawXML.concat("</stream:stream>");
 					_expireTagSearch++;
@@ -97,7 +97,7 @@
 				
 				_pattern = /\<stream:features/;
 				_o = _pattern.exec(_rawXML);
-				if (_o != null){
+				if (_o != null) {
 					//trace("found");
 					var myPattern:RegExp = new RegExp("<stream:features>");  
 					_rawXML = _rawXML.replace(myPattern, '<stream:features xmlns:stream="http://etherx.jabber.org/streams">');  
@@ -108,18 +108,22 @@
 
 			_pattern = /\<\/stream:stream\>/;
 			_o = _pattern.exec(_rawXML);
-			if (_o != null){
+			if (_o != null) {
 				dispatchEvent(new ChannelStateEvent(ChannelStateEvent.DISCONNECT));
 				//trace(rawXML);
 			}
 			
-			_pattern = /(\n|\r|^\s+\<)/g;
-			_rawXML = _rawXML.replace(_pattern,"");
+			_pattern = /(\n|\r)/g;
+			_rawXML = _rawXML.replace(_pattern, "&lt;br&gt;");
+			
+			_pattern = /(^\s+\<)/g;
+			_rawXML = _rawXML.replace(_pattern, "");
+			
 			dispatchData(_rawXML);
 		}
 		
 		/*
-		private function onRead(e:ProgressEvent):void{
+		private function onRead(e:ProgressEvent):void {
 			//_timer.reset();
 			var s:String = _socket.readUTFBytes(_socket.bytesAvailable);
 			//trace("[RECEIVED]>>",s,"\n");
@@ -132,7 +136,7 @@
 			
 			var pattern1:RegExp = new RegExp("<?xml ");
 			var resultObj1:Object = pattern1.exec(rawXML);
-			if (resultObj1 != null){
+			if (resultObj1 != null) {
 				trace("found");
 				rawXML = rawXML.substring(38);
 				_expireTagSearch = true;
@@ -141,7 +145,7 @@
 			
 			var pattern2:RegExp = new RegExp("<stream:stream");
 			var resultObj2:Object = pattern2.exec(rawXML);
-			if (resultObj2 != null){
+			if (resultObj2 != null) {
 				//trace(resultObj2[0]);
 				rawXML = rawXML.concat("</stream:stream>");
 				_expireTagSearch = true;
@@ -150,14 +154,14 @@
 			
 			var pattern4:RegExp = new RegExp("</stream:stream>");
 			var resultObj4:Object = pattern4.exec(rawXML);
-			if (resultObj4 != null){
+			if (resultObj4 != null) {
 				dispatchEvent(new ChannelStateEvent(ChannelStateEvent.DISCONNECT));
 				//trace(rawXML);
 			}
 		
 			var pattern3:RegExp = new RegExp("<stream:features");
 			var resultObj3:Object = pattern3.exec(rawXML);
-			if (resultObj3 != null){
+			if (resultObj3 != null) {
 				//trace("found");
 				var myPattern:RegExp = new RegExp("<stream:features>");  
 					rawXML = rawXML.replace(myPattern, '<stream:features xmlns:stream="http://etherx.jabber.org/streams">');  
@@ -171,22 +175,22 @@
 		}
 		*/
 		
-		private function dispatchData(s:String):void{
+		private function dispatchData(s:String):void {
 			var e:ChannelEvent = new ChannelEvent(s);
 			e.data = s;
 			dispatchEvent(e);
 		}
 		
-		private function onIOError(e:IOErrorEvent):void{
+		private function onIOError(e:IOErrorEvent):void {
 			trace(e);
 			dispatchEvent(new ChannelStateEvent(ChannelStateEvent.DISCONNECT));
 		}
 		
-		private function onSecurityError(e:IOErrorEvent):void{
+		private function onSecurityError(e:IOErrorEvent):void {
 			trace(e);
 		}
 		
-		public function disConnect():void{
+		public function disConnect():void {
 			_socket.close();
 		}
 	}
