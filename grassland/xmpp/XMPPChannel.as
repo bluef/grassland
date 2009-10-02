@@ -19,6 +19,7 @@
 		private var _rawXML:String;
 		private var _pattern:RegExp;
 		private var _o:Array;
+		private var _expireTag:uint;
 		
 		public function XMPPChannel(host:String, pport:uint):void {
 			init(host, pport);
@@ -27,6 +28,8 @@
 		private function init(host:String, pport:uint):void {
 			_host = host;
 			_port = pport;
+			
+			_expireTag = 0;
 			
 			_socket = new Socket();
 			_timer = new Timer(120000);
@@ -51,7 +54,7 @@
 		
 		//send data
 		public function sendData(s:String):void {
-			//trace("SENT>>", s, "\n");
+			trace("SENT>>", s, "\n");
 			//_timer.reset();
 			_socket.writeUTFBytes(s);
 			_socket.flush();
@@ -74,33 +77,39 @@
 		//when new data is available
 		private function onRead(e:ProgressEvent):void {
 			_rawXML = _socket.readUTFBytes(_socket.bytesAvailable);
-			//trace("[RECEIVED]>>", _rawXML, "\n");
-			
-			_pattern = /^(.*?)\<stream:stream/i;
-			_o = _pattern.exec(_rawXML);
-			if (_o != null) {
-				_rawXML = _rawXML.replace(_pattern, "<stream:stream")
-				_rawXML = _rawXML.concat("</stream:stream>");
+			trace("[RECEIVED]>>", _rawXML, "\n");
+			if (_expireTag < 3) {
+				_pattern = /^(.*?)\<stream:stream/i;
+				_o = _pattern.exec(_rawXML);
+				if (_o != null) {
+					_rawXML = _rawXML.replace(_pattern, "<stream:stream")
+					_rawXML = _rawXML.concat("</stream:stream>");
+					++_expireTag;
+				}
+				
+				_pattern = /\<stream:features/;
+				_o = _pattern.exec(_rawXML);
+				if (_o != null) {
+					var myPattern:RegExp = new RegExp("<stream:features>");  
+					_rawXML = _rawXML.replace(myPattern, '<stream:features xmlns:stream="http://etherx.jabber.org/streams">');
+					++_expireTag;
+				}
+			} else {
+				_pattern = /\<\/stream.*?\>/;
+				_o = _pattern.exec(_rawXML);
+				if (_o != null) {
+					dispatchEvent(new ChannelStateEvent(ChannelStateEvent.DISCONNECT));
+				}
+				
+				_pattern = /\<stream:(.*?)\>/;
+				_rawXML = _rawXML.replace(_pattern, '<stream:$1 xmlns:stream="http://etherx.jabber.org/streams">');
 			}
 			
-			_pattern = /\<stream:features/;
-			_o = _pattern.exec(_rawXML);
-			if (_o != null) {
-				var myPattern:RegExp = new RegExp("<stream:features>");  
-				_rawXML = _rawXML.replace(myPattern, '<stream:features xmlns:stream="http://etherx.jabber.org/streams">');  
-			}
+			_pattern = /(\n|\r)+/g;
+			_rawXML = _rawXML.replace(_pattern, "<br/>");
 			
-			_pattern = /^\<\/stream:stream\>/;
-			_o = _pattern.exec(_rawXML);
-			if (_o != null) {
-				dispatchEvent(new ChannelStateEvent(ChannelStateEvent.DISCONNECT));
-			}
-			
-			_pattern = /(\n|\r)/g;
-			_rawXML = _rawXML.replace(_pattern, "&lt;br&gt;");
-			
-			_pattern = /(^\s+\<)/g;
-			_rawXML = _rawXML.replace(_pattern, "");
+			//_pattern = /(^\s+\<)/g;
+			//_rawXML = _rawXML.replace(_pattern, "");
 			
 			dispatchData(_rawXML);
 		}

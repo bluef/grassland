@@ -101,6 +101,7 @@
 			XMPPStream.getInstance().addEventListener(XMPPStream.AUTH_FAILURE,onAuthFailed);
 			XMPPStream.getInstance().addEventListener(MessageEvent.RECEIVED,onMessage);
 			XMPPStream.getInstance().addEventListener(XMPPEvent.RAW,onRawXMPP);
+			XMPPStream.getInstance().addEventListener(XMPPEvent.ERROR,onErrorXMPP);
 			
 			XMPPStream.getInstance().addEventListener(TypingEvent.TYPING,onTyping);
 			XMPPStream.getInstance().addEventListener(TypingEvent.PAUSED,onTyping);
@@ -250,6 +251,10 @@
 		}
 		
 		private function onRawXMPP(e:XMPPEvent):void {
+			UtilWindowManager.getInstance().forwardData(e.type, e.data);
+		};
+		
+		private function onErrorXMPP(e:XMPPEvent):void {
 			UtilWindowManager.getInstance().forwardData(e.type, e.data);
 		};
 		

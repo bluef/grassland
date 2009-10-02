@@ -153,19 +153,19 @@
 			//dispatch the raw data of incoming sanza
 			dispatchEvent(new XMPPEvent(XMPPEvent.RAW, xmlsanza.toXMLString()));
 			
-			switch(xmlsanza.name().localName){
+			switch (xmlsanza.name().localName) {
 				case "message":
-					if (xmlsanza.hasOwnProperty("body") && xmlsanza.child("body").toXMLString() != ''){
+					if (xmlsanza.hasOwnProperty("body") && xmlsanza.child("body").toXMLString() != '') {
 						var packet:MessagePacket = new MessagePacket();
 						packet.loadXML(xmlsanza);
 						var e:MessageEvent = new MessageEvent(packet);
 						dispatchEvent(e);
-					} else if (xmlsanza.CHAT_NS::composing.toXMLString() != ''){
+					} else if (xmlsanza.CHAT_NS::composing.toXMLString() != '') {
 						//trace(xmlsanza.@from.toString());
-						var tte:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()),TypingEvent.TYPING);
+						var tte:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()), TypingEvent.TYPING);
 						dispatchEvent(tte);
-					} else if (xmlsanza.CHAT_NS::paused.toXMLString() != ''){
-						var tpe:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()),TypingEvent.PAUSED);
+					} else if (xmlsanza.CHAT_NS::paused.toXMLString() != '') {
+						var tpe:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()), TypingEvent.PAUSED);
 						dispatchEvent(tpe);
 					}
 					break;
@@ -184,9 +184,113 @@
 					var ie:IQEvent = new IQEvent(ipacket);
 					dispatchEvent(ie);
 					break;
+					
+				case "error":
+					pasteErrorSanza(xmlsanza);
+					break;
 			}
 			
 		}
+		
+		private function pasteErrorSanza(xml:XML):void {
+			var errMsg:String = '';
+			switch (xml.elements("*")[0].name().localName) {
+				case "bad-namespace-prefix" :
+					errMsg = "实体发送的名字空间前缀不被支持，或者在一个需要某种前缀的元素中没有发送一个名字空间前缀";
+					break;
+					
+				case "conflict" :
+					errMsg = "服务器正在关闭为这个实体激活的流，因为一个和已经存在的流有冲突的新的流已经被初始化";
+					break;
+					
+				case "connection-timeout" :
+					errMsg = "实体已经很长时间没有通过这个流发生任何通信流量(可由一个本地服务策略来配置)";
+					break;
+					
+				case "host-gone" :
+					errMsg = "初始化实体在流的头信息中提供的'to'属性的值所指定的主机已经不再由这台服务器提供";
+					break;
+					
+				case "host-unknown" :
+					errMsg = "由初始化实体在流的头信息中提供的 'to' 属性的值和由服务器提供的主机名不一致";
+					break;
+					
+				case "improper-addressing" :
+					errMsg = "一个在两台服务器之间传送的节缺少 'to' 或 'from' 属性(或者这个属性没有值)";
+					break;
+					
+				case "internal-server-error" :
+					errMsg = "服务器配置错误或者其他未定义的内部错误,使得服务器无法提供流服务";
+					break;
+					
+				case "invalid-from" :
+					errMsg = "在'from'属性中提供的 JID 或 主机名地址，和认证的 JID不匹配 或服务器之间无法通过SASL（或回拨）协商出合法的域名，或客户端和服务器之间无法通过它进行认证和资源绑定";
+					break;
+					
+				case "invalid-id" :
+					errMsg = "流 ID 或回拨 ID 是非法的或和以前提供的 ID 不一致";
+					break;
+					
+				case "invalid-namespace" :
+					errMsg = "流名字空间错误";
+					break;
+					
+				case "invalid-xml" :
+					errMsg = "实体通过流发送了一个非法的XML给执行验证的服务器";
+					break;
+					
+				case "not-authorized" :
+					errMsg = "实体试图在流被验证之前发送数据或不被许可执行一个和流协商有关的动作";
+					break;
+					
+				case "policy-violation" :
+					errMsg = "实体违反了某些本地服务策略";
+					break;
+					
+				case "remote-connection-failed" :
+					errMsg = "服务器无法正确连接到用于验证或授权的远程实体";
+					break;
+					
+				case "resource-constraint" :
+					errMsg = "服务器缺乏必要的系统资源为流服务";
+					break;
+					
+				case "restricted-xml" :
+					errMsg = "实体试图发送受限的XML特性，比如一个注释，处理指示，DTD，实体参考，或保留的字符";
+					break;
+					
+				case "see-other-host" :
+					errMsg = "服务器将不提供服务给初始化实体但是把它重定向到另一台主机";
+					break;
+					
+				case "system-shutdown" :
+					errMsg = "服务器正在关机并且所有激活的流正在被关闭";
+					break;
+					
+				case "undefined-condition" :
+					errMsg = "错误条件不在本文已定义的错误条件列表之中.";
+					break;
+					
+				case "unsupported-encoding" :
+					errMsg = "初始化实体以一个服务器不不支持的编码方式编码了一个流(参照Character Encoding (第十一章第五节)). ";
+					break;
+					
+				case "unsupported-stanza-type" :
+					errMsg = "初始化实体发送了一个流的一级子元素但是服务器不支持. ";
+					break;
+					
+				case "unsupported-version" :
+					errMsg = "由初始化实体在流的头信息中指定的'version'属性的值所指定的版本不被服务器支持;服务器可以(MAY)在<text/>元素中指定一个它支持的版本号. ";
+					break;
+					
+				case "xml-not-well-formed" :
+					errMsg = "初始化实体发送了一个不规范的XML";
+					break;
+			}
+			
+			dispatchEvent(new XMPPEvent(XMPPEvent.ERROR, errMsg)); //XMPPEvent.ERROR, errMsg
+			
+		};
 		
 		//public method for creating a new msg packet
 		public function newMessage(pto:JID,pbody:String):void {

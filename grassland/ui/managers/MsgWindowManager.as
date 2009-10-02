@@ -37,9 +37,8 @@
 			//get the index of specified window configuration and update it
 			var tmpWin:MessageWindow = searchWin(config);
 			var msg:String = packet.body;
-			msg = msg.replace(/\</g, "&lt;");
-			msg = msg.replace(/\>/g, "&gt;");
-			//msg = msg.replace(/\n/g, "<br />");
+			msg = msg.replace(/(\<(\/)?(body)\s*(\/)?\>)|\n|\r/g, "");
+			msg = msg.replace(/\<(?!(br))(.*)(?<!(br))\>/g, "&lt;$2&gt;")
 			var r:RosterItem = Env.getInstance().getRosterItemByJID(packet.from);
 			if (r.nick == null || r.nick == '') {
 				tmpWin.addText(addDialog(JID(packet.from).toString(), msg));

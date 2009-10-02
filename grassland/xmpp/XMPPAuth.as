@@ -18,7 +18,7 @@
 		private var _password:String;
 		
 		//constructor.take over channel to complete auth course
-		public function XMPPAuth(usr:String,pw:String,dp:XMPPDataPaster):void {
+		public function XMPPAuth(usr:String, pw:String, dp:XMPPDataPaster):void {
 			_username = usr;
 			_password = pw;
 			
@@ -67,9 +67,9 @@
 			var raw_bytes:String;
 			var char_hex:String;
 			var ba:ByteArray = new ByteArray();
-			for(var i:int = 0;i<32;i+=2){
-				char_hex = md5.substr(i,2);
-				ba.writeByte(int("0x"+char_hex));
+			for (var i:int = 0;i < 32; i += 2) {
+				char_hex = md5.substr(i, 2);
+				ba.writeByte(int("0x" + char_hex));
 			}
 			return ba;
 		}
@@ -99,7 +99,7 @@
 			//use hashBinary to hash a ByteArray
 			var ha1:String = MD5.hashBinary(ba);
 			var ha2:String = MD5.hash("AUTHENTICATE:xmpp/" + _dp.domain);
-			var response:String = MD5.hash(ha1+":"+nonceS+":00000001:"+cnonce+":auth:"+ha2);
+			var response:String = MD5.hash(ha1 + ":"+nonceS + ":00000001:" + cnonce + ":auth:" + ha2);
 			var responseBody:String = Base64.encode('username="' + _username + '",realm="' + _dp.domain + '",nonce="'+ nonceS + '",cnonce="' + cnonce + '",nc=00000001,qop=auth,digest-uri="xmpp/' + _dp.domain + '",charset=utf-8,response='+response);
 			var resultxml:XML = <response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>;
 			resultxml.appendChild(responseBody);
@@ -119,7 +119,7 @@
 		
 		//dispatch a AUTH_SUCCESS when a stream sanza received,which indicating the auth flow is complete
 		private function onStream(xmlsanza:XML):void {
-			dispatchEvent(new Event(XMPPAuth.AUTH_SUCCESS));
+			dispatchEvent(new Event(AUTH_SUCCESS));
 		}
 	}
 }
