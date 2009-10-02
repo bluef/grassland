@@ -234,7 +234,7 @@
 		}
 		
 		public function updateRoster(s:RosterItem):void {
-			//trace("update roster", JID(RosterItem(s).uid.valueOf());
+			//trace("update roster", JID(RosterItem(s).uid).valueOf());
 			var j:int = 0;
 			var found:Boolean = false;
 			var needToUpdate:Boolean = false;

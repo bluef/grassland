@@ -57,13 +57,22 @@
 		private var _show:String;
 		private var _status:String;
 		private var _type:String;
-		private var _priority:uint = 8;
+		private var _priority:uint;
 		
-		public function PresencePacket(){
+		public function PresencePacket(type:String = ''):void {
+			init();
+			_type = type;
 			super("presence");
 		}
 		
-		public function set show(pshow:String):void{
+		private function init():void {
+			_show = '';
+			_status = '';
+			_priority = 8;
+			_type = '';
+		};
+		
+		public function set show(pshow:String):void {
 			_show = pshow;
 		}
 		
@@ -71,7 +80,7 @@
 			return _show ;
 		}
 		
-		public function set status(pstatus:String):void{
+		public function set status(pstatus:String):void {
 			_status = pstatus;
 		}
 		
@@ -79,7 +88,7 @@
 			return _status ;
 		}
 		
-		public function set type(ptype:String):void{
+		public function set type(ptype:String):void {
 			_type = ptype;
 		}
 		
@@ -87,29 +96,32 @@
 			return _type ;
 		}
 		
-		public function set priority(ppriority:uint):void{
+		public function set priority(ppriority:uint):void {
 			_priority = ppriority;
 		}
 		
-		public function get priority():uint{
+		public function get priority():uint {
 			return _priority ;
 		}
 		
-		public function toXMLString():String{
-			if(_show != ""){
-				_xmlsanza.show = _show;
-			}
-			if(_status == ''){
-				_xmlsanza.status = "";
-			}else{
-				_xmlsanza.status = _status;
-			}
+		public function toXMLString():String {
+			_xmlsanza.show = _show;
+			_xmlsanza.status = _status;
 			_xmlsanza.priority = _priority;
+			
+			if (_type != '') {
+				_xmlsanza.@type = _type;
+			}
+			
+			if (_to != null) {
+				_xmlsanza.@to = JID(_to).toString();
+			}
+			
 			
 			return _xmlsanza.toXMLString();
 		}
 		
-		public function loadXML(pxmlsanza:XML):void{
+		public function loadXML(pxmlsanza:XML):void {
 			_to = new JID(pxmlsanza.@to);
 			_from = new JID(pxmlsanza.@from);
 			_status = pxmlsanza.status;
@@ -118,7 +130,7 @@
 			_type = pxmlsanza.@type;
 		}
 		
-		public function clone():PresencePacket{
+		public function clone():PresencePacket {
 			var p:PresencePacket = new PresencePacket();
 			p.to = _to.clone();
 			p.from = _from.clone();

@@ -51,11 +51,11 @@
 				switch (type) {
 					case UtilWindowType.ABOUT :
 						win = new AboutWindow();
-						_debug = true;
 						break;
 						
 					case UtilWindowType.DEBUG :
 						win = new DebugWindow();
+						_debug = true;
 						break;
 				}
 				

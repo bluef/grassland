@@ -88,16 +88,16 @@
 		
 		private function onData(ee:DataEvent):void {
 			var s:XML;
-			try{
+			try {
 				s = new XML(ee.data);
-				if (!_authed){
+				if (!_authed) {
 				//start auth
 				//trace("going to auth");
 					_auth.auth(s);
-				}else{
+				} else {
 				//trace("authed");
 					if (_binded) {
-						if (!_sessioned){
+						if (!_sessioned) {
 							setSession();
 						} else {
 							if (_rostered) {
@@ -105,7 +105,6 @@
 							} else {
 								setOnline("");
 								getRoster();
-								
 							}
 						}
 					} else {
@@ -151,50 +150,98 @@
 		//create diffrent sub-class packet by check xmlsanza's localname 
 		private function filterPacket(xmlsanza:XML):void {
 			//dispatch the raw data of incoming sanza
-			dispatchEvent(new XMPPEvent(XMPPEvent.RAW, xmlsanza.toXMLString()));
+			dispatchEvent(new XMPPEvent(XMPPEvent.RAW, XML(xmlsanza).toXMLString()));
 			
-			switch (xmlsanza.name().localName) {
+			switch (XML(xmlsanza).name().localName) {
 				case "message":
-					if (xmlsanza.hasOwnProperty("body") && xmlsanza.child("body").toXMLString() != '') {
-						var packet:MessagePacket = new MessagePacket();
-						packet.loadXML(xmlsanza);
-						var e:MessageEvent = new MessageEvent(packet);
-						dispatchEvent(e);
-					} else if (xmlsanza.CHAT_NS::composing.toXMLString() != '') {
-						//trace(xmlsanza.@from.toString());
-						var tte:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()), TypingEvent.TYPING);
-						dispatchEvent(tte);
-					} else if (xmlsanza.CHAT_NS::paused.toXMLString() != '') {
-						var tpe:TypingEvent = new TypingEvent(new JID(xmlsanza.@from.toString()), TypingEvent.PAUSED);
-						dispatchEvent(tpe);
-					}
+					pasteMsgSanza(XML(xmlsanza));
 					break;
 					
 				case "presence":
-					var ppacket:PresencePacket = new PresencePacket();
-					ppacket.loadXML(xmlsanza);
-					var pe:PresenceEvent = new PresenceEvent(ppacket);
-					dispatchEvent(pe);
+					pastePresenceSanza(XML(xmlsanza));
 					break;
 					
 				case "iq":
 					//trace("IQ");
-					var ipacket:IQPacket = new IQPacket();
-					ipacket.loadXML(xmlsanza);
-					var ie:IQEvent = new IQEvent(ipacket);
-					dispatchEvent(ie);
+					pasteIQSanza(XML(xmlsanza));
 					break;
 					
 				case "error":
-					pasteErrorSanza(xmlsanza);
+					pasteErrorSanza(XML(xmlsanza));
 					break;
 			}
 			
 		}
 		
+		private function pasteMsgSanza(xmlsanza:XML):void {
+			if (!XML(xmlsanza).hasOwnProperty('@type')) {
+				pasteChatSanza(xmlsanza);
+			} else {
+				switch (XML(xmlsanza).@type) {
+					case 'chat':
+						pasteChatSanza(xmlsanza);
+						break;
+						
+					case 'normal' :
+						pasteChatSanza(xmlsanza);
+						break;
+						
+					case 'error':
+						break;
+						
+					case 'groupchat':
+						break;
+						
+					case 'headline':
+						pasteChatSanza(xmlsanza);
+						break;
+						
+					default :
+						pasteChatSanza(xmlsanza);
+						break;
+				}
+			}			
+		};
+		
+		private function pasteChatSanza(xmlsanza:XML):void {
+			if (XML(xmlsanza).hasOwnProperty("body") && XML(xmlsanza).child("body").toXMLString() != '') {
+				var packet:MessagePacket = new MessagePacket();
+				packet.loadXML(XML(xmlsanza));
+				var e:MessageEvent = new MessageEvent(packet);
+				dispatchEvent(e);
+			} else {
+				if (XML(xmlsanza).CHAT_NS::composing.toXMLString() != '') {
+				//trace(xmlsanza.@from.toString());
+					var tte:TypingEvent = new TypingEvent(new JID(XML(xmlsanza).@from.toString()), TypingEvent.TYPING);
+					dispatchEvent(tte);
+				} else if(XML(xmlsanza).CHAT_NS::paused.toXMLString() != '') {
+					var tpe:TypingEvent = new TypingEvent(new JID(XML(xmlsanza).@from.toString()), TypingEvent.PAUSED);
+					dispatchEvent(tpe);
+				}
+			}
+		};
+		
+		private function pastePresenceSanza(xmlsanza:XML):void {
+			var packet:PresencePacket = new PresencePacket();
+			if (xmlsanza.hasOwnProperty('@type')) {
+				packet.type = XML(xmlsanza.@type);
+			}
+			
+			packet.loadXML(XML(xmlsanza));
+			var pe:PresenceEvent = new PresenceEvent(packet);
+			dispatchEvent(pe);
+		};
+		
+		private function pasteIQSanza(xmlsanza:XML):void {
+			var ipacket:IQPacket = new IQPacket();
+			ipacket.loadXML(XML(xmlsanza));
+			var ie:IQEvent = new IQEvent(ipacket);
+			dispatchEvent(ie);
+		};
+		
 		private function pasteErrorSanza(xml:XML):void {
 			var errMsg:String = '';
-			switch (xml.elements("*")[0].name().localName) {
+			switch (XML(xml).elements("*")[0].name().localName) {
 				case "bad-namespace-prefix" :
 					errMsg = "实体发送的名字空间前缀不被支持，或者在一个需要某种前缀的元素中没有发送一个名字空间前缀";
 					break;
@@ -333,6 +380,7 @@
 			xmlns.value = IQPacket.BIND_RESOURCE;
 			packet.addXMLChild("", "bind", '', xmlns);
 			packet.addXMLChild("bind", "resource", _dp.resource);
+			
 			sendData(packet.toXMLString());
 			_binded = true;
 		}
@@ -372,7 +420,7 @@
 			var xmlns:Object = new Object();
 			xmlns.tag = "xmlns";
 			xmlns.value = "http://jabber.org/protocol/disco#info";
-			packet.addXMLChild("","query",'',xmlns);
+			packet.addXMLChild("", "query", '', xmlns);
 			sendData(packet.toXMLString());
 		}
 		
@@ -408,11 +456,95 @@
 		}
 		
 		public function setOffline():void {
+			var packet:PresencePacket = new PresencePacket(PresencePacket.TYPE_UNAVAILABLE);
+			packet.priority = 10;
+			sendData(packet.toXMLString());
+			
 			disconnect();
 		}
 		
+		public function subscribe(s:JID):void {
+			var packet:PresencePacket = new PresencePacket(PresencePacket.TYPE_SUBSCRIBE);
+			packet.to = JID(s).clone();
+			sendData(packet.toXMLString());
+			
+			var iqpacket:IQPacket = new IQPacket();
+			iqpacket.ptype = IQPacket.TYPE_SET;
+			var xmlns:Object = new Object();
+			xmlns.tag = "xmlns";
+			xmlns.value = IQPacket.QUERY_ROSTER;
+			iqpacket.addXMLChild("", "query", '', xmlns);
+			iqpacket.addXMLChild("query", "item", '', {tag:"jid", value:JID(s).toString()});
+			
+			sendData(iqpacket.toXMLString());
+		};
+		
+		public function unsubscribe(s:JID):void {
+			var packet:PresencePacket = new PresencePacket(PresencePacket.TYPE_UNSUBSCRIBE);
+			packet.to = JID(s).clone();
+			sendData(packet.toXMLString());
+			
+			deleteRoster(s);
+		};
+		
+		public function handleSubReq(s:JID, approve:Boolean, group:String = ''):void {
+			var type:String = PresencePacket.TYPE_SUBSCRIBED;
+			if (!approve) {
+				type = PresencePacket.TYPE_UNSUBSCRIBED;
+			}
+			var packet:PresencePacket = new PresencePacket(PresencePacket.TYPE_SUBSCRIBED);
+			packet.to = JID(s).clone();
+			sendData(packet.toXMLString());
+			
+			if (approve) {
+				addRoster(JID(s), JID(s).node, group);
+			}
+		};
+		
+		public function addRoster(jid:JID, name:String = '', group:String = ''):void {
+			var packet:IQPacket = new IQPacket();
+			packet.ptype = IQPacket.TYPE_SET;
+			var xmlns:Object = new Object();
+			xmlns.tag = "xmlns";
+			xmlns.value = IQPacket.QUERY_ROSTER;
+			packet.addXMLChild("", "query", '', xmlns);
+			packet.addXMLChild("query", "item", '', {tag:"jid", value:JID(jid).toString()}, {tag:"name", value:(name == '' ? JID(jid).node : name)});
+			if (group != '') {
+				packet.addXMLChild("query", "group", group)
+			}
+			
+			sendData(packet.toXMLString());
+		};
+		
+		public function updateRoster(jid:JID, name:String = '', group:String = '', subscription:String = 'both'):void {
+			var packet:IQPacket = new IQPacket();
+			packet.ptype = IQPacket.TYPE_SET;
+			var xmlns:Object = new Object();
+			xmlns.tag = "xmlns";
+			xmlns.value = IQPacket.QUERY_ROSTER;
+			packet.addXMLChild("", "query", '', xmlns);
+			packet.addXMLChild("query", "item", '', {tag:"jid", value:JID(jid).toString()}, {tag:"name", value:(name == '' ? JID(jid).node : name)}, {tag:"subscription", value:subscription});
+			if (group != '') {
+				packet.addXMLChild("query", "group", group)
+			}
+			
+			sendData(packet.toXMLString());
+		};
+		
+		public function deleteRoster(jid:JID):void {
+			var packet:IQPacket = new IQPacket();
+			packet.ptype = IQPacket.TYPE_SET;
+			var xmlns:Object = new Object();
+			xmlns.tag = "xmlns";
+			xmlns.value = IQPacket.QUERY_ROSTER;
+			packet.addXMLChild("", "query", '', xmlns);
+			packet.addXMLChild("query", "item", '', {tag:"jid", value:JID(jid).toString()}, {tag:"subscription", value:"remove"});
+			
+			sendData(packet.toXMLString());
+		};
+		
 		public function typingTo(s:JID):void {
-			sendData("<message from='"+_user.valueOf()+"' to='"+s.valueOf()+"' type='chat'><composing xmlns='http://jabber.org/protocol/chatstates'/></message>");
+			sendData("<message from='" + _user.valueOf() + "' to='" + s.valueOf() + "' type='chat'><composing xmlns='http://jabber.org/protocol/chatstates'/></message>");
 		}
 	}
 }

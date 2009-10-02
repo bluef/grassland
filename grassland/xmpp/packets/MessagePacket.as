@@ -13,28 +13,34 @@
 		private var _body:String;
 		private var _type:String;
         
-        public function MessagePacket(){
+        public function MessagePacket() {
+        	init();
         	
         	super("message");
         }
         
-        public function get body():String{
+        private function init():void {
+        	_body = '';
+        	_type = '';
+        };
+        
+        public function get body():String {
 			return _body;
 		}
 		
-		public function set body(pbody:String):void{
+		public function set body(pbody:String):void {
 			_body = pbody;
 		}
 		
-		public function set type(s:String):void{
+		public function set type(s:String):void {
 			_type = s;
 		}
         
-		public function get type():String{
+		public function get type():String {
 			return _type;
 		}
 		
-        public function toXMLString():String{
+        public function toXMLString():String {
         	_xmlsanza.@to = _to;
         	_xmlsanza.@from = _from;
         	_xmlsanza.@type = _type;
@@ -44,16 +50,15 @@
 			return _xmlsanza.toXMLString();
         }
         
-        public function loadXML(pxmlsanza:XML):void{
+        public function loadXML(pxmlsanza:XML):void {
         	var ns:Namespace = pxmlsanza.namespace();
         	_to = new JID(pxmlsanza.@to);
 			_from = new JID(pxmlsanza.@from);
 			_type = pxmlsanza.@type;
 			_body = pxmlsanza.ns::body;
-			//trace("msg create,body =", _body, "from =", _from.toString());
         }
 		
-		public function clone():MessagePacket{
+		public function clone():MessagePacket {
 			var p:MessagePacket = new MessagePacket();
 			p.to = _to.clone();
 			p.from = _from.clone();

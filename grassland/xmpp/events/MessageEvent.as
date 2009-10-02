@@ -6,16 +6,16 @@
 		public static var RECEIVED:String = "Message_Received";
 		private var _data:MessagePacket;
 		
-		public function MessageEvent(s:MessagePacket){
+		public function MessageEvent(s:MessagePacket) {
 			super(MessageEvent.RECEIVED, true, false);
 			_data = s;
 		}
 		
-		public function get data():MessagePacket{
+		public function get data():MessagePacket {
 			return _data;
 		}
 		
-		public function set data( s:MessagePacket ):void{
+		public function set data(s:MessagePacket):void {
 			_data = s;
 		}
 	}

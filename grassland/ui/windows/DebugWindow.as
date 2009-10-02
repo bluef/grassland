@@ -91,6 +91,11 @@ package grassland.ui.windows {
 			_scrollBar.scrollPosition = _scrollBar.maxScrollPosition;
 		};
 		
+		override protected function closeWin(e:MouseEvent):void {
+			dispatchEvent(new Event(Event.CLOSING)); //Event.CLOSING
+			
+		}
+		
 		private function onScroll(e:ScrollEvent):void {
 			//_disArea.scrollV = e.target.scrollPosition;
 			_disArea.scrollV = ScrollBar(e.target).scrollPosition * 5;

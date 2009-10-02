@@ -78,20 +78,16 @@
 		private function onRead(e:ProgressEvent):void {
 			_rawXML = _socket.readUTFBytes(_socket.bytesAvailable);
 			trace("[RECEIVED]>>", _rawXML, "\n");
-			if (_expireTag < 3) {
+			
+			_pattern = /\<stream:(.*?)\>/;
+			_rawXML = _rawXML.replace(_pattern, '<stream:$1 xmlns:stream="http://etherx.jabber.org/streams">');
+			
+			if (_expireTag < 2) {
 				_pattern = /^(.*?)\<stream:stream/i;
 				_o = _pattern.exec(_rawXML);
 				if (_o != null) {
 					_rawXML = _rawXML.replace(_pattern, "<stream:stream")
 					_rawXML = _rawXML.concat("</stream:stream>");
-					++_expireTag;
-				}
-				
-				_pattern = /\<stream:features/;
-				_o = _pattern.exec(_rawXML);
-				if (_o != null) {
-					var myPattern:RegExp = new RegExp("<stream:features>");  
-					_rawXML = _rawXML.replace(myPattern, '<stream:features xmlns:stream="http://etherx.jabber.org/streams">');
 					++_expireTag;
 				}
 			} else {
@@ -100,9 +96,6 @@
 				if (_o != null) {
 					dispatchEvent(new ChannelStateEvent(ChannelStateEvent.DISCONNECT));
 				}
-				
-				_pattern = /\<stream:(.*?)\>/;
-				_rawXML = _rawXML.replace(_pattern, '<stream:$1 xmlns:stream="http://etherx.jabber.org/streams">');
 			}
 			
 			_pattern = /(\n|\r)+/g;

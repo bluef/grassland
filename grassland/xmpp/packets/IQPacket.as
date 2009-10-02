@@ -16,8 +16,13 @@
 		private var _content:XMLList;
 		
 		public function IQPacket(){
+			init();
 			super("iq");
 		}
+		
+		private function init():void {
+			_type = '';
+		};
 		
 		public function get content():XMLList{
 			return _content;
@@ -34,7 +39,9 @@
 		public function toXMLString():String{
 			_xmlsanza.@type = _type;
 			_xmlsanza.@id = generateID();
-			_xmlsanza.appendChild(_content);
+			if (_content != null) {
+				_xmlsanza.appendChild(_content);
+			}
 			
 			return _xmlsanza.toXMLString();
 		}

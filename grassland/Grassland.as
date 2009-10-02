@@ -319,19 +319,17 @@
 		}
 		
 		//handle presence packet
-		private function onPresence(e:PresenceEvent):void{
-			trace("PRESENCE PACKET:", e.data.from.valueOf(), "TYPE:", e.data.type, "SHOW:", e.data.show);
-			if(e.data.from.node != '' && e.data.from.node != null){
+		private function onPresence(e:PresenceEvent):void {
+			//trace("PRESENCE PACKET:", e.data.from.valueOf(), "TYPE:", e.data.type, "SHOW:", e.data.show);
+			if (e.data.from.node != '' && e.data.from.node != null) {
 				var packet:PresencePacket = PresencePacket(e.data);
-				switch(packet.type){
-					case PresencePacket.TYPE_SUBSCRIBE:
-						onSubscribe(packet);
+				switch (packet.type) {
+					case PresencePacket.TYPE_SUBSCRIBE :						
+					case PresencePacket.TYPE_SUBSCRIBED :
+					case PresencePacket.TYPE_UNSUBSCRIBED :
+						onSubscribe(packet, packet.type);
 						break;
-					case PresencePacket.TYPE_SUBSCRIBED:
-						onSubscribed(packet);
-						break;
-					case PresencePacket.TYPE_UNSUBSCRIBED:
-						break;
+						
 					default:
 						onShowPresence(packet);
 						break;
@@ -339,37 +337,52 @@
 			}
 		}
 		
-		private function onSubscribe(p:PresencePacket):void{
+		private function onSubscribe(p:PresencePacket, type:String):void {
+			UtilWindowManager.getInstance().forwardData(type, JID(p.from).toString());
+			if (type == PresencePacket.TYPE_SUBSCRIBED) {
+				XMPPStream.getInstance().handleSubReq(JID(p.from), true);
+			}
 			
+			if (type == PresencePacket.TYPE_UNSUBSCRIBED) {
+				XMPPStream.getInstance().handleSubReq(JID(p.from), false);
+			}
 		}
 		
-		private function onSubscribed(p:PresencePacket):void{
-			
-		}
+		private function onApproveSubscribe(e:UtilWinMgrEvent):void {
+			XMPPStream.getInstance().handleSubReq(new JID(e.data.uid), true, e.data.group);
+		};
+		
+		private function onDenySubscribe(e:UtilWinMgrEvent):void {
+			XMPPStream.getInstance().handleSubReq(new JID(e.data.uid), false);
+		};
+		
+		private function onUnsubscribe(e:UtilWinMgrEvent):void {
+			XMPPStream.getInstance().unsubscribe(new JID(e.data.uid));
+		};
 		
 		private function onShowPresence(packet:PresencePacket):void{
-			if (packet.type == "unavailable") {
-				packet.show = "offline";
+			trace("ON SHOW PRESENCE", packet.toXMLString());
+			if (PresencePacket(packet).type == "unavailable") {
+				PresencePacket(packet).show = "offline";
 			} else {
 				//trace(packet.show == undefined);
-				trace(packet.show);
-				switch (packet.show) {
-					case "away":
+				//trace(packet.show);
+				switch (PresencePacket(packet).show) {
 					case "xa":
-						packet.show = "away";
+						PresencePacket(packet).show = "away";
 						break;
 						
 					case "dnd":
 						break;
 						
 					default:
-						packet.show = "online";
+						PresencePacket(packet).show = "online";
 						break;
 				}
 			}
 				
 			//update roster status
-			Env.getInstance().pushPresenceBuffer(packet);
+			Env.getInstance().pushPresenceBuffer(PresencePacket(packet));
 			//NotifyManager.getInstance().newNotify(packet.from,Notify.TYPE_SHOW,packet.show);
 		}
 		

@@ -1,9 +1,11 @@
-package grassland.ui.windows {
+﻿package grassland.ui.windows {
 	import flash.display.Loader;
 	import flash.net.URLRequest;
 	import flash.desktop.NativeApplication;
 	import flash.system.System;
 	import flash.system.Capabilities;
+	import flash.events.MouseEvent;
+	import flash.events.Event;
 	
 	import grassland.core.Version;
 	import grassland.ui.base.BasicWindow;
@@ -44,5 +46,10 @@ package grassland.ui.windows {
 		public function get id():String {
 			return _id;
 		};
+		
+		override protected function closeWin(e:MouseEvent):void {
+			dispatchEvent(new Event(Event.CLOSING)); //Event.CLOSING
+			
+		}
 	}
 }
