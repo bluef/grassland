@@ -1,5 +1,5 @@
 ﻿package grassland.core {
 	public class Version {
-		public static const VERSION:String = "Millstone 2 bleeding-edge";
+		public static const VERSION:String = "M2";
 	}
 }

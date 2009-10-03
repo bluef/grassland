@@ -2,6 +2,7 @@
 	import flash.text.TextField;
 	import flash.text.AntiAliasType;
 	import grassland.ui.utils.DefaultTextFormat;
+	
 	public class LabelText extends TextField {
 		private var _format:DefaultTextFormat;
 		public function LabelText(t:String = '', w:uint = 50, bold:Boolean = false, color:Number = 0x000000, italic:Boolean = false, size:uint = 12) {
@@ -26,7 +27,7 @@
 		
 		public function set color(s:Number):void {
 			_format.color = s;
-			this.setTextFormat(_format);
+			setTextFormat(_format);
 		}
 		
 		public function set italic(s:Boolean):void {

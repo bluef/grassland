@@ -40,16 +40,29 @@
 						_winArr[UtilWindowType.DEBUG].log(String(data));
 					}
 					break;
+					
+				case XMPPEvent.ERROR :
+					if (_winArr[UtilWindowType.ALERT] == null) {
+						newWindow(UtilWindowType.ALERT);
+					}
+					_winArr[UtilWindowType.ALERT].appendMsg(String(data));
+					break;
+					
 			}
 		};
 		
 		public function newWindow(type:String):void {
 			if (_winArr[type] != null) {
 				BasicWindow(_winArr[type]).activate();
+				//return BasicWindow(_winArr[type]);
 			} else {
 				var win:BasicWindow;
 				switch (type) {
 					case UtilWindowType.ABOUT :
+						win = new AboutWindow();
+						break;
+						
+					case UtilWindowType.ALERT :
 						win = new AboutWindow();
 						break;
 						
@@ -60,9 +73,10 @@
 				}
 				
 				_winArr[type] = win;
-				win.addEventListener(Event.CLOSING, onWinClosing);
-				win.addEventListener(UtilWinEvent.DATA, onWinData);
-				win.activate();
+				EventDispatcher(win).addEventListener(Event.CLOSING, onWinClosing);
+				EventDispatcher(win).addEventListener(UtilWinEvent.DATA, onWinData);
+				BasicWindow(win).activate();
+				//return BasicWindow(win);
 			}
 		}
 		
@@ -78,7 +92,7 @@
 		}
 		
 		private function onWinData(e:UtilWinEvent):void {
-			switch ( e.data.type ) {
+			switch (e.data.type) {
 				case 'debug_raw_input' :
 					dispatchEvent(new UtilWinMgrEvent(UtilWinMgrEvent.DEBUG_RAW_INPUT, e.data.data)); //RAW_INPUT_DATA
 					break;

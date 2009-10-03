@@ -6,17 +6,17 @@
       
     public class DarkIcon extends Icon{		
 		private var imageURLs:Array = ['images/icons/dark16x16.png'];
-										
+		
         public function DarkIcon():void{
             super();
             bitmaps = new Array();
         }
         
         public function loadImages(event:Event = null):void{
-        	if(event != null){
+        	if (event != null) {
         		bitmaps.push(event.target.content.bitmapData);
         	}
-        	if(imageURLs.length > 0){
+        	if (imageURLs.length > 0) {
         		var urlString:String = imageURLs.pop();
         		var loader:Loader = new Loader();
         		loader.contentLoaderInfo.addEventListener(Event.COMPLETE,loadImages,false,0,true);

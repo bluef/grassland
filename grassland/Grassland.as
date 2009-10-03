@@ -548,7 +548,7 @@
 			
 			
 			_darkIcon = new DarkIcon();
-			_darkIcon.addEventListener(Event.COMPLETE,function():void{
+			_darkIcon.addEventListener(Event.COMPLETE,function():void {
 				_iconState = "dark";
 				_flashing = false;
 				NativeApplication.nativeApplication.icon.bitmaps = _darkIcon.bitmaps;
@@ -560,7 +560,7 @@
 			
 			_iconMenu = new NativeMenu();
 			
-			if(NativeApplication.supportsSystemTrayIcon){
+			if (NativeApplication.supportsSystemTrayIcon) {
 				_sysTray= NativeApplication.nativeApplication.icon as SystemTrayIcon;
 				_sysTray.tooltip = "NUT";
 				var exitCommand:NativeMenuItem = 
@@ -570,13 +570,13 @@
 				});
 				_sysTray.menu = _iconMenu;
 			}
-			if(NativeApplication.supportsDockIcon){
+			if (NativeApplication.supportsDockIcon) {
 				DockIcon(NativeApplication.nativeApplication.icon).menu = _iconMenu;
 			}
 		}
 		
 		//add unread msg item to trayicon menu
-		public function addMsgIndicator(r:JID):void{
+		public function addMsgIndicator(r:JID):void {
 			flashTrayIcon();
 			_iconMenu.getItemAt(_iconMenu.numItems - 1).enabled = false;
 			var i:NativeMenuItem = new NativeMenuItem(r.node);
@@ -590,7 +590,7 @@
 				}
 			}
 			//add item i to trayicon menu if it did not exist
-			if(pos < 0){
+			if (pos < 0) {
 				_iconMenu.addItemAt(i,0);
 				trace(_iconMenu.numItems);
 				_iconMenu.getItemAt(0).addEventListener(Event.SELECT,onIconMsgClicked);
@@ -603,22 +603,25 @@
 		}
 		
 		//when menu item of unread msg in trayicon menu is clicked.compare to function onNotifyClicked
-		private function onIconMsgClicked(e:Event):void{
+		private function onIconMsgClicked(e:Event):void {
 			var packet:MessagePacket;
 			var menuitem:NativeMenuItem = NativeMenuItem(e.target);
 			var config:MsgWindowConfig = new MsgWindowConfig(Env.getInstance().getRosterItemByJID(JID(menuitem.data)));
-			for (var i:int = 0;i<_iconMenu.numItems;i++){
-				if(_iconMenu.getItemAt(i).label == e.target.label){
+			var cnt:int = _iconMenu.numItems;
+			for (var i:int = 0;i < cnt; ++i) {
+				if (_iconMenu.getItemAt(i).label == e.target.label) {
 					break;
 				}
 			}
 			MsgWindowManager.getInstance().newMsgWindow(config);
 			
-			while(packet = Env.getInstance().popMsgBuffer(JID(menuitem.data))){
+			while (packet = Env.getInstance().popMsgBuffer(JID(menuitem.data))) {
 				MsgWindowManager.getInstance().appendMsg(config,packet);
 			}
+			
 			_iconMenu.removeItemAt(i);
-			if(_iconMenu.numItems == 1){
+			
+			if (_iconMenu.numItems == 1) {
 				_iconMenu.getItemAt(0).enabled = true;
 				clearInterval(_i);
 				_flashing = false;
@@ -653,15 +656,15 @@
 			}
 		}
 		
-		private function flashTrayIcon():void{
-			if(!_flashing){
+		private function flashTrayIcon():void {
+			if (!_flashing) {
 				_i = setInterval(changeIcon,500);
 			}
 			_flashing = true;
 		}
 		
-		private function changeIcon():void{
-			switch(_iconState){
+		private function changeIcon():void {
+			switch (_iconState) {
 				case "light":
 					NativeApplication.nativeApplication.icon.bitmaps = _darkIcon.bitmaps;
 					_iconState = "dark";
