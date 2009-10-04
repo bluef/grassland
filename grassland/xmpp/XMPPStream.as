@@ -463,20 +463,12 @@
 			disconnect();
 		}
 		
-		public function subscribe(s:JID):void {
+		public function subscribe(s:JID, name:String = '', group:String = ''):void {
+			addRoster(JID(s), JID(s).node, group);
+			
 			var packet:PresencePacket = new PresencePacket(PresencePacket.TYPE_SUBSCRIBE);
 			packet.to = JID(s).clone();
 			sendData(packet.toXMLString());
-			
-			var iqpacket:IQPacket = new IQPacket();
-			iqpacket.ptype = IQPacket.TYPE_SET;
-			var xmlns:Object = new Object();
-			xmlns.tag = "xmlns";
-			xmlns.value = IQPacket.QUERY_ROSTER;
-			iqpacket.addXMLChild("", "query", '', xmlns);
-			iqpacket.addXMLChild("query", "item", '', {tag:"jid", value:JID(s).toString()});
-			
-			sendData(iqpacket.toXMLString());
 		};
 		
 		public function unsubscribe(s:JID):void {
@@ -487,19 +479,39 @@
 			deleteRoster(s);
 		};
 		
-		public function handleSubReq(s:JID, approve:Boolean, group:String = ''):void {
+		public function handleSubReq(approve:Boolean, s:JID, name:String = '', group:String = ''):void {
 			var type:String = PresencePacket.TYPE_SUBSCRIBED;
 			if (!approve) {
 				type = PresencePacket.TYPE_UNSUBSCRIBED;
 			}
-			var packet:PresencePacket = new PresencePacket(PresencePacket.TYPE_SUBSCRIBED);
+			var packet:PresencePacket = new PresencePacket(type);
 			packet.to = JID(s).clone();
 			sendData(packet.toXMLString());
 			
+			if (name == '') {
+				name = JID(s).node;
+			}
+			
 			if (approve) {
-				addRoster(JID(s), JID(s).node, group);
+				subscribe(JID(s), name, group);
 			}
 		};
+		
+		
+		public function sysHandleSubReq(approve:Boolean, s:JID, name:String = '', group:String = ''):void {
+			var type:String = PresencePacket.TYPE_SUBSCRIBED;
+			if (!approve) {
+				type = PresencePacket.TYPE_UNSUBSCRIBED;
+			}
+			var packet:PresencePacket = new PresencePacket(type);
+			packet.to = JID(s).clone();
+			sendData(packet.toXMLString());
+			
+			if (name == '') {
+				name = JID(s).node;
+			}
+		};
+		
 		
 		public function addRoster(jid:JID, name:String = '', group:String = ''):void {
 			var packet:IQPacket = new IQPacket();

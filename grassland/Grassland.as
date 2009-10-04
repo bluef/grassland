@@ -117,6 +117,8 @@
 			MsgWindowManager.getInstance().addEventListener(MsgWinManagerEvent.MSG,sendMsg);
 			MsgWindowManager.getInstance().addEventListener(MsgWinManagerEvent.TYPING,isTyping);
 			UtilWindowManager.getInstance().addEventListener(UtilWinMgrEvent.DEBUG_RAW_INPUT, onDebugRawInput);
+			UtilWindowManager.getInstance().addEventListener(UtilWinMgrEvent.SUBSCRIBE, onNewSubscribe);
+			
 			NativeApplication.nativeApplication.addEventListener(Event.USER_IDLE, onUserIdle);
 			NativeApplication.nativeApplication.addEventListener(Event.USER_PRESENT,onUserPresence);
 		}
@@ -262,6 +264,18 @@
 			XMPPStream.getInstance().sendData(String(e.data));
 		};
 		
+		private function onNewSubscribe(e:UtilWinMgrEvent):void {
+			switch ( e.data.type ) {
+				case 'subscribe' :
+					XMPPStream.getInstance().subscribe(new JID(e.data.jid), e.data.cname, e.data.group);
+					break;
+					
+				case 'approveSubscribe' :
+					XMPPStream.getInstance().handleSubReq(true, new JID(e.data.jid), e.data.cname, e.data.group);
+					break;
+			}
+		};
+		
 		//handle msg received
 		private function onMessage(e:MessageEvent):void{
 			var packet:MessagePacket = MessagePacket(e.data);
@@ -271,15 +285,15 @@
 			//var n:NativeMenuItem = new NativeMenuItem(Env.getInstance().getRosterItemByJID(packet.from).nick);
 			
 			var config:MsgWindowConfig = new MsgWindowConfig(Env.getInstance().getRosterItemByJID(packet.from));
-			if(MsgWindowManager.getInstance().isWinActived(config)){
+			if (MsgWindowManager.getInstance().isWinActived(config)) {
 				//create a new msg window to show the incoming msg
 				MsgWindowManager.getInstance().newMsgWindow(config);
 				
-				while(packet = Env.getInstance().popMsgBuffer(packet.from)){
+				while (packet = Env.getInstance().popMsgBuffer(packet.from)) {
 					trace(packet.from.toString());
-					MsgWindowManager.getInstance().appendMsg(config,packet);
+					MsgWindowManager.getInstance().appendMsg(config, packet);
 				}
-			}else{
+			} else {
 				//NotifyManager.getInstance().newNotify(packet.from,Notify.TYPE_MSG,packet.body);
 				addMsgIndicator(packet.from);
 			}
@@ -288,13 +302,16 @@
 		//handle IQ packet received
 		private function onIQ(e:IQEvent):void{
 			var packet:IQPacket = IQPacket(e.data);
-			trace("IQPacket :",packet.content[0].name().uri);
-			switch(packet.content[0].name().uri){
-				//if the IQ packet received is roster list
-				case "jabber:iq:roster":
-					gotRoster(packet.content[0]);
-					break;
+			//trace("IQPacket :",packet.content[0].name().uri);
+			if (packet.content[0] != null) {
+				switch (packet.content[0].name().uri){
+					//if the IQ packet received is roster list
+					case "jabber:iq:roster":
+						gotRoster(packet.content[0]);
+						break;
+				}
 			}
+			
 		}
 		
 		//handle roster list received
@@ -302,13 +319,13 @@
 			trace("got roster");
 			var arr:Vector.<RosterItem> = new Vector.<RosterItem>();
 			var ns:Namespace = pxml.namespace();
-			for each(var r:XML in pxml.ns::item){
+			for each (var r:XML in pxml.ns::item) {
 				var j:JID = new JID(r.@jid);
 				var i:RosterItem = new RosterItem(j);
 				i.group = r.ns::group.toString();
-				if(r.@name == null){
+				if (r.@name == null) {
 					i.nick = j.node;
-				}else{
+				} else {
 					i.nick = r.@name;
 				}
 				i.show = "offline";
@@ -338,22 +355,25 @@
 		}
 		
 		private function onSubscribe(p:PresencePacket, type:String):void {
-			UtilWindowManager.getInstance().forwardData(type, JID(p.from).toString());
 			if (type == PresencePacket.TYPE_SUBSCRIBED) {
-				XMPPStream.getInstance().handleSubReq(JID(p.from), true);
+				XMPPStream.getInstance().sysHandleSubReq(true, JID(p.from));
+			}
+			
+			if (type == PresencePacket.TYPE_SUBSCRIBE) {
+				UtilWindowManager.getInstance().forwardData('subscribe', JID(p.from).toString());
 			}
 			
 			if (type == PresencePacket.TYPE_UNSUBSCRIBED) {
-				XMPPStream.getInstance().handleSubReq(JID(p.from), false);
+				//XMPPStream.getInstance().handleSubReq(false, JID(p.from));
 			}
 		}
 		
 		private function onApproveSubscribe(e:UtilWinMgrEvent):void {
-			XMPPStream.getInstance().handleSubReq(new JID(e.data.uid), true, e.data.group);
+			//XMPPStream.getInstance().handleSubReq(new JID(e.data.uid), true, e.data.group);
 		};
 		
 		private function onDenySubscribe(e:UtilWinMgrEvent):void {
-			XMPPStream.getInstance().handleSubReq(new JID(e.data.uid), false);
+			//XMPPStream.getInstance().handleSubReq(new JID(e.data.uid), false);
 		};
 		
 		private function onUnsubscribe(e:UtilWinMgrEvent):void {

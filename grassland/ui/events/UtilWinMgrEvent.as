@@ -2,6 +2,8 @@
 	import flash.events.Event;
 	public class UtilWinMgrEvent extends Event {
 		public static const DEBUG_RAW_INPUT:String = "debug_raw_input";
+		public static const SUBSCRIBE:String = "subscribe_subscribe";
+		
 		private var _data:Object;
 		
 		public function UtilWinMgrEvent(t:String, s:Object = null) {

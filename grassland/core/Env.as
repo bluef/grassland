@@ -222,7 +222,7 @@
 			var l:int;
 			while (!found) {
 				l = _roster[j].length;
-				for (i = 0; i < l; ++i){
+				for (i = 0; i < l; ++i) {
 					if (_roster[j].getRosterItemAt(i).uid.toString() == s.toString()){
 						found = true;
 						break;
@@ -230,7 +230,7 @@
 				}
 				++j;
 			}
-			return _roster[j-1].getRosterItemAt(i);
+			return _roster[j - 1].getRosterItemAt(i);
 		}
 		
 		public function updateRoster(s:RosterItem):void {
@@ -282,7 +282,7 @@
 		}
 		
 		private function loadAvatar(u:String):void {
-			var r:URLRequest = new URLRequest("http://www2.dormforce.net/talk/avatar.php?uid="+u);
+			var r:URLRequest = new URLRequest("http://www2.dormforce.net/talk/avatar.php?uid=" + u);
 			var l:Loader = new Loader();
 			l.contentLoaderInfo.addEventListener(Event.COMPLETE, onAvatarLoaded);
 			l.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR , onAvatarIOError);
@@ -435,6 +435,10 @@
 			}
 			return s;
 		}
+		
+		public function get groupsData():Vector.<String> {
+			return _group;
+		};
 	}
 }
 class SingletonEnforcer {}

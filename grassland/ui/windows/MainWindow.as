@@ -110,6 +110,8 @@
 			
 			
 			//addMenuItem("隐藏离线好友", "HideOfflineContactCommand");
+			addMenuItem("添加好友", new ShowUtilCommand(UtilWindowType.SUBSCRIBE));
+			addMenuItem("", null, true);
 			addMenuItem("关于Grassland", new ShowUtilCommand(UtilWindowType.ABOUT));
 			addMenuItem("Debug", new ShowUtilCommand(UtilWindowType.DEBUG));
 			addMenuItem("", null, true);

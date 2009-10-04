@@ -2,6 +2,9 @@
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;
+	
+	import grassland.ui.windows.AlertWindow;
+	import grassland.ui.windows.SubscribeWindow;
 	import grassland.ui.windows.AboutWindow;
 	import grassland.ui.windows.DebugWindow;
 	import grassland.ui.base.BasicWindow;
@@ -41,6 +44,13 @@
 					}
 					break;
 					
+				case 'subscribe' :
+					if (_winArr[UtilWindowType.SUBSCRIBE] == null) {
+						var win:SubscribeWindow = SubscribeWindow(newWindow(UtilWindowType.SUBSCRIBE));
+						win.jid = String(data);
+					}
+					break;
+					
 				case XMPPEvent.ERROR :
 					if (_winArr[UtilWindowType.ALERT] == null) {
 						newWindow(UtilWindowType.ALERT);
@@ -51,19 +61,23 @@
 			}
 		};
 		
-		public function newWindow(type:String):void {
+		public function newWindow(type:String):* {
+			var win:*;
 			if (_winArr[type] != null) {
 				BasicWindow(_winArr[type]).activate();
-				//return BasicWindow(_winArr[type]);
+				win = _winArr[type];
 			} else {
-				var win:BasicWindow;
 				switch (type) {
 					case UtilWindowType.ABOUT :
 						win = new AboutWindow();
 						break;
 						
 					case UtilWindowType.ALERT :
-						win = new AboutWindow();
+						win = new AlertWindow();
+						break;
+						
+					case UtilWindowType.SUBSCRIBE :
+						win = new SubscribeWindow();
 						break;
 						
 					case UtilWindowType.DEBUG :
@@ -76,8 +90,9 @@
 				EventDispatcher(win).addEventListener(Event.CLOSING, onWinClosing);
 				EventDispatcher(win).addEventListener(UtilWinEvent.DATA, onWinData);
 				BasicWindow(win).activate();
-				//return BasicWindow(win);
 			}
+			
+			return win;
 		}
 		
 		private function onWinClosing(e:Event):void {
@@ -91,10 +106,29 @@
 			}
 		}
 		
+		private function shutdown(win:BasicWindow):void {
+			if (_winArr[IUtilWindow(win).id] != null) {
+				_winArr[IUtilWindow(win).id].removeEventListener(Event.CLOSING, onWinClosing);
+				_winArr[IUtilWindow(win).id].removeEventListener(UtilWinEvent.DATA, onWinData);
+				BasicWindow(_winArr[IUtilWindow(win).id]).close();
+				delete _winArr[IUtilWindow(win).id];
+			}
+		};
+		
 		private function onWinData(e:UtilWinEvent):void {
 			switch (e.data.type) {
 				case 'debug_raw_input' :
 					dispatchEvent(new UtilWinMgrEvent(UtilWinMgrEvent.DEBUG_RAW_INPUT, e.data.data)); //RAW_INPUT_DATA
+					break;
+					
+				case 'subscribe' :
+					dispatchEvent(new UtilWinMgrEvent(UtilWinMgrEvent.SUBSCRIBE, {type:e.data.type, jid:e.data.jid, cname:e.data.cname, group:e.data.group})); //RAW_INPUT_DATA
+					shutdown(BasicWindow(e.target));
+					break;
+					
+				case 'approveSubscribe' :
+					dispatchEvent(new UtilWinMgrEvent(UtilWinMgrEvent.SUBSCRIBE, {type:e.data.type, jid:e.data.jid, cname:e.data.cname, group:e.data.group})); //RAW_INPUT_DATA
+					shutdown(BasicWindow(e.target));
 					break;
 			}
 		};
