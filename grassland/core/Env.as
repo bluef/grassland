@@ -36,6 +36,8 @@
 		private var _presenceBuffer:Vector.<PresencePacket>;
 		private var _rostered:Boolean;
 		
+		private var _firstRostered:Boolean;
+		
 		//store user info
 		private var _myProfile:UserProfile;
 		private var _user:JID;
@@ -54,6 +56,7 @@
 			_msgBuffer = new Vector.<MessagePacket>();
 			_presenceBuffer = new Vector.<PresencePacket>();
 			_rostered = false;
+			_firstRostered = true;
 			_remember = true;
 			setSorter(STATUS);
 		}
@@ -122,26 +125,37 @@
 		public function fillRoster(s:Vector.<RosterItem>):void {
 			var l:int = s.length;
 			var i:int;
+			var tmpRoster:RosterItem;
+			var existGroup:RosterGroup;
+			var tmpGroup:RosterGroup;
+			
 			for (i = 0; i < l; ++i) {
-				if (RosterItem(s[i]).nick == null || RosterItem(s[i]).nick == '') {
-					RosterItem(s[i]).nick = RosterItem(s[i]).uid.node;
+				tmpRoster = RosterItem(s[i]);
+				if (RosterItem(tmpRoster).nick == null || RosterItem(tmpRoster).nick == '') {
+					RosterItem(tmpRoster).nick = JID(RosterItem(tmpRoster).uid).node;
 				}
 				
-				if (RosterItem(s[i]).group == null || RosterItem(s[i]).group == '') {
-					RosterItem(s[i]).group = "未命名";
+				if (RosterItem(tmpRoster).group == null || RosterItem(tmpRoster).group == '') {
+					RosterItem(tmpRoster).group = "好友";
 				}
 				//trace("ROSTER GROUP FOUND: ", s[i].group);
 				
-				var existGroup:RosterGroup = getRosterGroupObjByName(RosterItem(s[i]).group);
+				existGroup = getRosterGroupObjByName(String(RosterItem(tmpRoster).group));
 				//var pos:int;
 				if (existGroup == null) {
-					_group.push(s[i].group);
-					var tmpGroup:RosterGroup = new RosterGroup(s[i].group);
+					_group.push(String(RosterItem(tmpRoster).group));
+					tmpGroup = new RosterGroup(String(RosterItem(tmpRoster).group));
 					_roster.push(tmpGroup);
-					RosterGroup(_roster[_roster.length-1]).addItem(s[i]);
+					if (_firstRostered) {
+						RosterGroup(_roster[_roster.length - 1]).addItem(RosterItem(tmpRoster));
+					} else {
+						if (RosterGroup(_roster[_roster.length - 1]).getRosterItemByJID(RosterItem(tmpRoster).uid) != null) {
+							RosterGroup(_roster[_roster.length - 1]).addItem(RosterItem(tmpRoster));
+						}
+					}
 					//pos = _roster.length-1;
 				} else {
-					RosterGroup(existGroup).addItem(s[i]);
+					RosterGroup(existGroup).addItem(tmpRoster);
 				}
 				//RosterGroup(_roster[pos]).getRosterItemAt(_roster[pos].length - 1).nick = RosterItem(s[i]).nick;
 				//trace("nick =",RosterGroup(_roster[pos]).getRosterItemAt(_roster[pos].length - 1).nick);
@@ -157,11 +171,14 @@
 			}
 			*/
 				
-			
-			for (i = 0;i < _roster.length; ++i) {
+			l = _roster.length;
+			for (i = 0;i < l; ++i) {
 				dispatchEvent(new RosterUpdateEvent(i));
 			}
-			_rostered = true;
+			
+			if (_firstRostered) {
+				_firstRostered = false;
+			}
 			dispatchEvent(new Event(ROSTER_FILLED, true));
 		}
 		
@@ -379,17 +396,17 @@
 		}
 		
 		//get the length of msg buffer
-		public function get msgBufferLength():int{
+		public function get msgBufferLength():int {
 			return _msgBuffer.length;
 		}
 		
-		public function pushPresenceBuffer(packet:PresencePacket):void{
+		public function pushPresenceBuffer(packet:PresencePacket):void {
 			//trace("presence pushed");
 			var r:RosterItem;
 			var p:PresencePacket;
 			var l:int = _presenceBuffer.length;
-			//trace(_rostered);
-			if (_rostered) {
+			
+			if (_firstRostered == false) {
 				//trace(_presenceBuffer.length);
 				if (_presenceBuffer.length == 0) {
 					r = new RosterItem(packet.from, packet.show, packet.status);

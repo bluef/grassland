@@ -48,7 +48,7 @@
 		
 		public function getRosterItemPosByJID(j:JID):uint {
 			var l:int = _itemArr.length;
-			for (var i:int = 0;i<l;i++) {
+			for (var i:int = 0; i < l; ++i) {
 				if (JID(_itemArr[i].uid).toString() == JID(j).toString()) {
 					break;
 				}
