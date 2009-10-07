@@ -64,7 +64,7 @@
 		public function getRosterItemByJID(j:JID):RosterItem {			
 			_rosterJIDForSearch = j;
 			
-			var filterItems:Vector.<RosterItem> = _itemArr.filter(searchRosterGroupObjByName, null);
+			var filterItems:Vector.<RosterItem> = _itemArr.filter(searchRosterItemObjByName, null);
 			if (filterItems.length == 0) {
 				return null;
 			} else {
@@ -74,7 +74,7 @@
 		
 		private var _rosterJIDForSearch:JID;
 		
-		private function searchRosterGroupObjByName(item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
+		private function searchRosterItemObjByName(item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
 			return (JID(item.uid).toString() == JID(_rosterJIDForSearch).toString());
 		}
 		
@@ -86,13 +86,13 @@
 		public function countOnline():void {
 			_onlineCount = 0;
 			
-			var searchFunc:Function = function (item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
-				return (item.show == "offline");
-			}
-			
 			var filterItems:Vector.<RosterItem> = _itemArr.filter(searchFunc, null);
 			
 			_onlineCount = filterItems.length;
 		}
+		
+		private function searchFunc(item:RosterItem, index:int, vector:Vector.<RosterItem>):Boolean {
+			return (item.show != "offline");
+		};
 	}
 }

@@ -37,6 +37,10 @@
 			super(380, 300, false);
 			title = "Grassland - Login";
 			
+			init();
+		}
+		
+		private function init():void {
 			_userLabel = new LabelText("帐号", 200);
 			_userLabel.x = 20;
 			_userLabel.y = 20;
@@ -101,9 +105,10 @@
 			
 			_checkBox = new CheckBox();
 			_checkBox.label = "记住登录状态";
+			_checkBox.selected = true;
 			_checkBox.x = 50;
 			_checkBox.y = 85;
-			//_panel.addChild(_checkBox);
+			_panel.addChild(_checkBox);
 			
 			_loginBtn = new CmdBtn("登录", 80, 60);
 			_loginBtn.x = 270;
@@ -113,11 +118,12 @@
 			
 			_loginState = new LabelText();
 			_loginState.width = 200;
+			_loginState.x = 5;
 			_loginState.y = 190;
 			_panel.addChild(_loginState);
 			
 			stage.focus = _userText;
-		}
+		};
 		
 		private function onEnter(e:KeyboardEvent):void {
 			if (e.keyCode == Keyboard.ENTER) {
@@ -153,7 +159,7 @@
     			node = _userText.text;
     		}
     		
-			var ee:LoginEvent = new LoginEvent(node, _pwText.text, true, _serverText.text, _portText.text, _domainText.text, _resourceText.text);
+			var ee:LoginEvent = new LoginEvent(node, _pwText.text, _checkBox.selected, _serverText.text, _portText.text, _domainText.text, _resourceText.text);
 			dispatchEvent(ee);
 			setState("登录中...");
 			return true;
@@ -175,8 +181,8 @@
 				cancelBtn.y = 30;
 				cancelBtn.addEventListener(MouseEvent.CLICK, onCancelUpdate);
 				msk.addChild(cancelBtn);
-			}else {
-				if(stage.contains(msk)) {
+			} else {
+				if (stage.contains(msk)) {
 					stage.removeChild(msk);
 				}
 			}

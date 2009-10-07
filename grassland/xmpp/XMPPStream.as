@@ -214,7 +214,7 @@
 				//trace(xmlsanza.@from.toString());
 					var tte:TypingEvent = new TypingEvent(new JID(XML(xmlsanza).@from.toString()), TypingEvent.TYPING);
 					dispatchEvent(tte);
-				} else if(XML(xmlsanza).CHAT_NS::paused.toXMLString() != '') {
+				} else if (XML(xmlsanza).CHAT_NS::paused.toXMLString() != '') {
 					var tpe:TypingEvent = new TypingEvent(new JID(XML(xmlsanza).@from.toString()), TypingEvent.PAUSED);
 					dispatchEvent(tpe);
 				}
@@ -499,9 +499,9 @@
 		
 		
 		public function sysHandleSubReq(approve:Boolean, s:JID, name:String = '', group:String = ''):void {
-			var type:String = PresencePacket.TYPE_SUBSCRIBED;
+			var type:String = PresencePacket.TYPE_SUBSCRIBE;
 			if (!approve) {
-				type = PresencePacket.TYPE_UNSUBSCRIBED;
+				type = PresencePacket.TYPE_UNSUBSCRIBE;
 			}
 			var packet:PresencePacket = new PresencePacket(type);
 			packet.to = JID(s).clone();

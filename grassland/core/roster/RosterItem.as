@@ -20,7 +20,7 @@
 		}
 		
 		public function clone():RosterItem {
-			var i:RosterItem = new RosterItem(_uid, _show, _status);
+			var i:RosterItem = new RosterItem(JID(_uid), _show, _status);
 			i.group = _group;
 			i.nick = _name;
 			return i;

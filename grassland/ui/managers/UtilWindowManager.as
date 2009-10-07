@@ -61,7 +61,7 @@
 			}
 		};
 		
-		public function newWindow(type:String):* {
+		public function newWindow(type:String, arg:Object = null):* {
 			var win:*;
 			if (_winArr[type] != null) {
 				BasicWindow(_winArr[type]).activate();
@@ -77,7 +77,12 @@
 						break;
 						
 					case UtilWindowType.SUBSCRIBE :
-						win = new SubscribeWindow();
+						if (arg == null) {
+							win = new SubscribeWindow();
+						} else {
+							win = new SubscribeWindow(String(arg));
+						}
+						
 						break;
 						
 					case UtilWindowType.DEBUG :
@@ -128,6 +133,11 @@
 					
 				case 'approveSubscribe' :
 					dispatchEvent(new UtilWinMgrEvent(UtilWinMgrEvent.SUBSCRIBE, {type:e.data.type, jid:e.data.jid, cname:e.data.cname, group:e.data.group})); //RAW_INPUT_DATA
+					shutdown(BasicWindow(e.target));
+					break;
+					
+				case 'denySubscribe' :
+					dispatchEvent(new UtilWinMgrEvent(UtilWinMgrEvent.SUBSCRIBE, {type:e.data.type, jid:e.data.jid})); //RAW_INPUT_DATA
 					shutdown(BasicWindow(e.target));
 					break;
 			}

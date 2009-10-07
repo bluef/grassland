@@ -9,11 +9,13 @@
 		private var _show:String;
 		private var _status:String;
 		private var _nick:String;
+		private var _domain:String;
 		
-		public function UserProfile(username:String, passwd:String){
-			_user = new JID(username + "@dormforce.net");
+		public function UserProfile(username:String, passwd:String, domain:String = "dormforce.net"){
+			_domain = domain;
+			_user = new JID(username + "@" + domain);
 			_pw = passwd;
-			_avatar = new BitmapData(48,48);
+			_avatar = new BitmapData(48, 48);
 			_nick = '';
 		}
 		
@@ -66,7 +68,7 @@
 		};
 		
 		public function clone():UserProfile {
-			var i:UserProfile = new UserProfile(_user.node,_pw);
+			var i:UserProfile = new UserProfile(_user.node, _pw, _domain);
 			i.show = _show;
 			i.status = _status;
 			

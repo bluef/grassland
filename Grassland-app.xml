@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?><application xmlns="http://ns.adobe.com/air/application/1.5"> 
 <id>net.dormforce.Grassland</id> 
-<version>build 2009/10/05</version> 
+<version>build 2009/10/07</version> 
 <filename>Grassland</filename> 
 <description>a simple xmpp implement</description> 
 <name>Grassland</name> 

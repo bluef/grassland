@@ -273,6 +273,10 @@
 				case 'approveSubscribe' :
 					XMPPStream.getInstance().handleSubReq(true, new JID(e.data.jid), e.data.cname, e.data.group);
 					break;
+					
+				case 'denySubscribe' :
+					XMPPStream.getInstance().handleSubReq(false, new JID(e.data.jid));
+					break;
 			}
 		};
 		
@@ -364,7 +368,7 @@
 			}
 			
 			if (type == PresencePacket.TYPE_UNSUBSCRIBED) {
-				//XMPPStream.getInstance().handleSubReq(false, JID(p.from));
+				XMPPStream.getInstance().sysHandleSubReq(false, JID(p.from));
 			}
 		}
 		

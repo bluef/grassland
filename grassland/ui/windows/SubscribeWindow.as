@@ -28,7 +28,8 @@
 		private var _nameText:InputField;
 		private var _groupLabel:LabelText;
 		private var _groupBox:ComboBox;
-		private var _btn:CmdBtn;
+		private var _okBtn:CmdBtn;
+		private var _cancelBtn:CmdBtn;
 
 		private var _group:String;
 		
@@ -86,11 +87,22 @@
             
             groupsData = Env.getInstance().groupsData;
             
-            _btn = new CmdBtn("添加", 80, 60);
-			_btn.x = 270;
-			_btn.y = 40;
-			_btn.addEventListener(MouseEvent.CLICK, onBtnClicked);
-			_panel.addChild(_btn);    
+    		_okBtn = new CmdBtn("添加好友", 80, 30);
+			_okBtn.x = 270;
+			_okBtn.y = 40;
+			_okBtn.addEventListener(MouseEvent.CLICK, onOkBtnClicked);
+			_panel.addChild(_okBtn);
+			
+			if (_mode == APPROVE_MODE) {
+				_cancelBtn = new CmdBtn("拒绝请求", 80, 30);
+			} else {
+				_cancelBtn = new CmdBtn("取消", 80, 30);
+			}
+			
+			_cancelBtn.x = 270;
+			_cancelBtn.y = 90;
+			_cancelBtn.addEventListener(MouseEvent.CLICK, onCancelBtnClicked);
+			_panel.addChild(_cancelBtn);    
 		}
 		
 		public function get id():String {
@@ -120,7 +132,7 @@
 			_jidText.text = value;
 		};
 		
-		private function onBtnClicked(e:MouseEvent):void {
+		private function onOkBtnClicked(e:MouseEvent):void {
 			if (_jidText.text == '') {
 				
 			} else {
@@ -136,6 +148,13 @@
 						break;
 				}
 				dispatchEvent(new UtilWinEvent(UtilWinEvent.DATA, {type:type, jid:_jidText.text, cname:_nameText.text, group:_group}));
+			}
+		};
+		
+		private function onCancelBtnClicked(e:MouseEvent):void {
+			if (_mode == APPROVE_MODE) {
+				dispatchEvent(new UtilWinEvent(UtilWinEvent.DATA, {type:'denySubscribe', jid:_jidText.text})); //UtilWinEvent.DATA, {type:'unsubscribe', jid:_jidText.text}
+				
 			}
 		};
 		

@@ -34,7 +34,7 @@
 			//check if the auth request sanza sent
 			if(!_authSent){
 				trace("auth:begin authing");
-				if(xmlsanza.name().localName == "features" || xmlsanza.name().localName == "stream"){
+				if (xmlsanza.name().localName == "features" || xmlsanza.name().localName == "stream") {
 					//anounce using digest-md5 method to authenticate
 					var returnxml:XML = <auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='DIGEST-MD5'/>;
 					_authSent = true;
@@ -44,7 +44,7 @@
 				//trace("2");
 				//trace("xmlsanza.name().localName =",xmlsanza.name().localName);
 				//filter data to complete the flow
-				switch (xmlsanza.name().localName){
+				switch (xmlsanza.name().localName) {
 					//while a challenge received
 					case "challenge":
 						challengeMD5(xmlsanza);
@@ -99,7 +99,7 @@
 			//use hashBinary to hash a ByteArray
 			var ha1:String = MD5.hashBinary(ba);
 			var ha2:String = MD5.hash("AUTHENTICATE:xmpp/" + _dp.domain);
-			var response:String = MD5.hash(ha1 + ":"+nonceS + ":00000001:" + cnonce + ":auth:" + ha2);
+			var response:String = MD5.hash(ha1 + ":" + nonceS + ":00000001:" + cnonce + ":auth:" + ha2);
 			var responseBody:String = Base64.encode('username="' + _username + '",realm="' + _dp.domain + '",nonce="'+ nonceS + '",cnonce="' + cnonce + '",nc=00000001,qop=auth,digest-uri="xmpp/' + _dp.domain + '",charset=utf-8,response='+response);
 			var resultxml:XML = <response xmlns="urn:ietf:params:xml:ns:xmpp-sasl"/>;
 			resultxml.appendChild(responseBody);

@@ -21,6 +21,7 @@
 	
 	import grassland.core.commands.ExitAppCommand;
 	import grassland.core.commands.ShowUtilCommand;
+	import grassland.core.commands.ShowSubscribeCommand;
 	
 	import grassland.ui.base.BasicWindow;
 	import grassland.ui.events.ContactListEvent;
@@ -110,7 +111,7 @@
 			
 			
 			//addMenuItem("隐藏离线好友", "HideOfflineContactCommand");
-			addMenuItem("添加好友", new ShowUtilCommand(UtilWindowType.SUBSCRIBE));
+			addMenuItem("添加好友", new ShowSubscribeCommand());
 			addMenuItem("", null, true);
 			addMenuItem("关于Grassland", new ShowUtilCommand(UtilWindowType.ABOUT));
 			addMenuItem("Debug", new ShowUtilCommand(UtilWindowType.DEBUG));

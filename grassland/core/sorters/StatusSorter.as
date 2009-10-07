@@ -4,6 +4,7 @@
 	
 	public class StatusSorter implements ISorter {
 		private var _order:Array;
+		private var _re:int;
 		public function StatusSorter() {
 			//create show state order array.online state should place in the top of contact list and offline comes last
 			_order = ["online","dnd","away","offline"];
@@ -11,20 +12,28 @@
 		
 		//sort roster item with mergeSort algorithm
 		public function sort(x:RosterItem, y:RosterItem):int {
-			var re:int = 0;
+			_re = 0;
 			if (_order.indexOf(RosterItem(x).show) > _order.indexOf(RosterItem(y).show)) {
-				re = 1;
+				_re = 1;
 			}
 			
 			if (_order.indexOf(RosterItem(x).show) < _order.indexOf(RosterItem(y).show)) {
-				re = -1;
+				_re = -1;
 			}
 			
 			if (_order.indexOf(RosterItem(x).show) == _order.indexOf(RosterItem(y).show)) {
-				re = 0;
+				_re = 0;
+				
+				//comparing 2 string simply this way with a operator is much faster than casting comparing and String.locateCompare
+				if (RosterItem(x).nick > RosterItem(y).nick) {
+					_re = 1;
+				} else if (RosterItem(x).nick < RosterItem(y).nick) {
+					_re = -1;
+				}
+				
 			}
 			
-			return re;
+			return _re;
 		};
 		
 		/*
